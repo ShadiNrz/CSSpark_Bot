@@ -6,7 +6,7 @@ reddit = praw.Reddit(
     client_secret='KQQgQEj87V7t4u4Ob9FYTscq1BdL6w',
     user_agent='Kerbal_Bot',
     username='Kerbal_Bot',
-    password='pVzNkPER9JmFYAf'
+    password='pVzNkPER9JmFYAf' #TODO: Change bot username and remove password from code
 )
 
 subreddit = reddit.subreddit('neckbeardstestroom')
