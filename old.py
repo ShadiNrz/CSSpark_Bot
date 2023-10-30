@@ -9,7 +9,7 @@ reddit = praw.Reddit(
     password='pVzNkPER9JmFYAf' #TODO: Change bot username and remove password from code
 )
 
-subreddit = reddit.subreddit('neckbeardstestroom')
+subreddit = reddit.subreddit('bot_playground')
 
 subscription_dict = {}
 public_users = []
