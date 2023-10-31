@@ -1,19 +1,5 @@
-from dataclasses import dataclass
-from typing import List
 import json
-
-@dataclass
-class Topic:
-    topicName: str
-    isExpanded: bool
-
-@dataclass
-class User:
-    reddit_username: str
-    isPublic: bool
-    subscribedKeywords: List[Topic]
-
-
+from db_types import Topic, User
 #JSON placeholder data (probably similar to what we'll get from the database?)
 users_json = '''
 [
