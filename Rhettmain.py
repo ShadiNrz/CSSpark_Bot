@@ -6,7 +6,7 @@ reddit = praw.Reddit(
     client_secret='KQQgQEj87V7t4u4Ob9FYTscq1BdL6w',
     user_agent='Kerbal_Bot',
     username='Kerbal_Bot',
-    password='pVzNkPER9JmFYAf' #TODO: Change bot username and remove password from code
+    password='pVzNkPER9JmFYAf'
 )
 
 subreddit = reddit.subreddit('bot_playground')
@@ -42,10 +42,6 @@ def checkComments():
                     for keyword in keywords:
                         if keyword not in subscription_dict[comment.author]:
                             subscription_dict[comment.author].append(keyword)
-
-                # Send user a dm about their new subscription - test code
-                user = comment.author.name
-                reddit.redditor(user).message(subject="New Subscription", message="Congrats on subscribing to" + str(keywords))
 
                 # Have the bot reply to the comment confirming subscription
                 # Creates a string that has all keywords separated by commas
