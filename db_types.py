@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 
 @dataclass
 class Topic:
@@ -11,3 +11,5 @@ class User:
     reddit_username: str
     isPublic: bool
     subscribedKeywords: List[Topic]
+
+KeywordExpansionDict = Dict[str, List[str]]

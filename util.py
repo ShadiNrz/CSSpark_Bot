@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List
 from db_types import Topic, User
-def getSubscribedKeywords(user: User) -> List[str]:
+def get_subscribed_keywords(user: User) -> List[str]:
     """
     Returns a list of expanded topic names for a given user.
 
