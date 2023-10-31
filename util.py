@@ -1,8 +1,26 @@
 from __future__ import annotations
-from typing import List
+from typing import Dict, List
 from db_types import Topic, User, KeywordExpansionDict
 
-def find_subscribed_keywords(user: User, post_text: str) -> int:
+def get_user_keyword_counts(users: List[User], post_text: str) -> Dict[str, int]:
+    """
+    Counts the number of subscribed keywords for each user in a given Reddit post text.
+
+    Parameters:
+        users (List[User]): A list of User objects containing their subscribed keywords.
+        post_text (str): The text content of the Reddit post.
+
+    Returns:
+        Dict[str, int]: A dictionary mapping usernames to the count of their subscribed keywords in the post text.
+    """
+    user_keyword_counts = {}
+    for user in users:
+        matching_keywords = count_subscribed_keywords(user, post_text)
+        if(matching_keywords > 0):
+            user_keyword_counts[user.reddit_username] = matching_keywords
+    return user_keyword_counts
+
+def count_subscribed_keywords(user: User, post_text: str) -> int:
     """
     Finds the number of user-subscribed keywords present in the given Reddit post text.
 
