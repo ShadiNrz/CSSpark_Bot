@@ -1,4 +1,5 @@
 import re
+
 import praw
 
 reddit = praw.Reddit(
@@ -181,6 +182,51 @@ def checkSubmissions():
         print(f"Error in checkSubmissions(): {e}")
 
 
+def checkInbox():
+
+    print("Checking inbox...")
+
+    try:
+
+        # get NEW items in inbox as a "stream" and iterates through them
+        for item in reddit.inbox.stream():
+
+            # check if item subject is "Bot Command"
+            if item.subject == "Bot Command":
+
+                # message body is !sub command
+
+                # Add new keywords to user's subscription list
+                if "!sub" in item.body:
+
+                    # seperate keywords by commas
+                    keywords = item.body.replace("!sub ", "").split(", ")
+
+                    # force keywords into lower case
+                    keywords = [k.lower() for k in keywords]
+
+                    # add keywords to the user's subscriptions
+                    if item.author not in subscription_dict:
+                        subscription_dict[item.author] = keywords
+                    else:
+                        for keyword in keywords:
+                            if keyword not in subscription_dict[item.author]:
+                                subscription_dict[item.author].append(keyword)
+
+                    # message formatting and creation
+                    keywords_string = ""
+                    for keyword in keywords:
+                        keywords_string = keywords_string + ", " + keyword
+
+                    keywords_string = keywords_string.split(",")[1:]
+                    keywords_string = ", ".join(keywords_string)
+
+                    item.reply("*Beep Boop* \n\nYou are now subscribed to keyword(s)" + keywords_string)
+
+    except Exception as e:
+        print("")
+
 while True:
-    checkComments()
-    checkSubmissions()
+    checkInbox()
+    #checkComments()
+    #checkSubmissions()
