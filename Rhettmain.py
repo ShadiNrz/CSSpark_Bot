@@ -15,12 +15,24 @@ subreddit = reddit.subreddit('bot_playground')
 subscription_dict = {}
 public_users = []
 
+
 # TODO: When multiple keywords are used in the same comment or title please only respond once
 # Stable Version
 
+## keywordFormatting: takes input keywords for !sub or !unsub and formats them into list
+## args: takes in body of message and the operation type ("!sub" or "!unsub")
+def keywordFormatting(body, operation):
+    # seperate keywords by commas
+    operation = operation + " "
+    keywords = body.replace(operation, "").split(", ")
+
+    # force keywords into lower case
+    keywords = [k.lower() for k in keywords]
+
+    return keywords
+
 
 def checkComments():
-
     print("checking comments...")
 
     try:
@@ -131,19 +143,19 @@ def checkComments():
                                           + "\" was mentioned in a new comment by " + comment.author.name
                                           + ". Go check it out!\n\n" + comment.submission.url)
                         # print(public_users)
-                            # user.message(
-                            #     subject="Your keyword \"" + keyword + "\" was mentioned!",
-                            #     message="Your keyword was mentioned in a new comment by " + comment.author.name
-                            #             + ". Go check it out!\n\n" + comment.submission.url
-                            # )
+                        # user.message(
+                        #     subject="Your keyword \"" + keyword + "\" was mentioned!",
+                        #     message="Your keyword was mentioned in a new comment by " + comment.author.name
+                        #             + ". Go check it out!\n\n" + comment.submission.url
+                        # )
     except Exception as e:
         print("")
+
 
 # TODO: Add option to silence bot for a post because a keyword might be repeated on many comments
 
 
 def checkSubmissions():
-
     print("checking submissions...")
     try:
         # Check new posts and comments for keywords
@@ -169,27 +181,30 @@ def checkSubmissions():
                                 break
 
                         if not already_said:
+                            #reddit.redditor(user.name).message('Keyword Ping!', reply_string)
                             submission.reply(reply_string)
 
                     # print(public_users)
 
-                        # # TODO: This might not work as the bot won't be able to DM users since it is a new account
-                        # user.message(
-                        #     subject="Your keyword \"" + keyword + "\" was mentioned!",
-                        #     message="Your keyword was mentioned in a new post. Go check it out!\n\n" + submission.url
-                        # )
+                    # # TODO: This might not work as the bot won't be able to DM users since it is a new account
+                    # user.message(
+                    #     subject="Your keyword \"" + keyword + "\" was mentioned!",
+                    #     message="Your keyword was mentioned in a new post. Go check it out!\n\n" + submission.url
+                    # )
     except Exception as e:
         print(f"Error in checkSubmissions(): {e}")
 
 
 def checkInbox():
-
     print("Checking inbox...")
 
     try:
 
         # get NEW items in inbox as a "stream" and iterates through them
         for item in reddit.inbox.stream():
+
+            # IMPORTANT - MARK ITEM AS READ IMMEDIATELY
+            item.mark_read()
 
             # check if item subject is "Bot Command"
             if item.subject == "Bot Command":
@@ -199,11 +214,8 @@ def checkInbox():
                 # Add new keywords to user's subscription list
                 if "!sub" in item.body:
 
-                    # seperate keywords by commas
-                    keywords = item.body.replace("!sub ", "").split(", ")
-
-                    # force keywords into lower case
-                    keywords = [k.lower() for k in keywords]
+                    # Format keywords in message
+                    keywords = keywordFormatting(item.body, "!sub")
 
                     # add keywords to the user's subscriptions
                     if item.author not in subscription_dict:
@@ -223,10 +235,70 @@ def checkInbox():
 
                     item.reply("*Beep Boop* \n\nYou are now subscribed to keyword(s)" + keywords_string)
 
+                # Remove keywords from a user's subscription list
+                elif "!unsub" in item.body:
+
+                    # Format keywords in message
+                    keywords = keywordFormatting(item.body, "!unsub")
+
+                    # Remove keywords from user's subscription list
+                    if item.author in subscription_dict:
+                        for keyword in keywords:
+                            if keyword in subscription_dict[item.author]:
+                                subscription_dict[item.author].remove(keyword)
+
+                    # Have the bot reply to the comment confirming unsubscription
+                    # Creates a string that has all keywords separated by commas
+                    # Then prints full message with keywords
+                    keywords_string = ""
+                    for keyword in keywords:
+                        keywords_string = keywords_string + ", " + keyword
+                    keywords_string = keywords_string.split(",")[1:]
+                    keywords_string = ", ".join(keywords_string)
+                    item.reply("*Beep Boop* \n\nYou are now unsubscribed from keyword(s)" + keywords_string)
+
+                # Make users public on request
+                elif "!publicme" in item.body:
+                    if item.author not in public_users:
+                        public_users.append(item.author)
+
+                    # Have the bot reply to the comment confirming privacy setting changed
+                    item.reply("*Beep Boop* \n\nYour profile is now public.")
+
+                # Make users private on request
+                elif "!privateme" in item.body:
+                    if item.author in public_users:
+                        public_users.remove(item.author)
+
+                    # Have the bot reply to the comment confirming privacy setting changed
+                    item.reply("*Beep Boop* \n\nYour profile is now private.")
+                    # print(public_users)
+
+                # List users who have subscribed to a certain keyword
+                elif "!findusers" in item.body:
+
+                    # Format keywords in message
+                    keywords = keywordFormatting(item.body, "!findusers")
+
+                    users_per_keyword = {}
+                    for keyword in keywords:
+                        users_per_keyword[keyword] = []
+                        for user in subscription_dict:
+                            if user in public_users and keyword in subscription_dict[user]:
+                                users_per_keyword[keyword].append(user.name)
+
+                    # Have the bot reply to the comment with usernames
+                    # TODO: Move this to DMs and make it cleaner
+                    if str(users_per_keyword) != '[]':
+                        item.reply("*Beep Boop* \n\nThese are the users I found:\n\n" + str(users_per_keyword))
+                    else:
+                        item.reply("*Beep Boop* \n\nI found no users!")
+
     except Exception as e:
         print("")
 
+
 while True:
     checkInbox()
-    #checkComments()
-    #checkSubmissions()
+    # checkComments()
+    checkSubmissions()
