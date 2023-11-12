@@ -3,7 +3,7 @@ import os
 from pymongo import MongoClient
 
 from dotenv import load_dotenv, dotenv_values
-from db_types import ExtendedUser, Topic, User, ExpandedSubscriptions
+from db_types import ExtendedUser, Topic, User
 from keyword_pipeline import keyword_pipeline
 
 load_dotenv()
@@ -21,8 +21,9 @@ except Exception as e:
 for db in client.list_databases():
     print(db)
 
-db = client["staging-reddit-bot"]
-# delete and rebuild the keyword expansion list to keep it up to date
+db = client["prod-reddit-bot"]
+
+# CODE TO REBUILD THE USERS DB
 db.users.delete_many({})
 db.users.insert_many(
     [
@@ -44,6 +45,7 @@ db.users.insert_many(
         },
     ]
 )
+# delete and rebuild the keyword expansion list to keep it up to date
 db.keyword_expansion.delete_many({})
 db.keyword_expansion.insert_many(
     [
@@ -68,17 +70,7 @@ def get_users(aggregate: bool):
         raw_users = db.users.aggregate(keyword_pipeline)
 
         # convert to ExtendedUser objects
-        users = []
-        for user_data in raw_users:
-            if "expanded_subscriptions" in user_data:
-                expanded_subs = user_data["expanded_subscriptions"]
-                if not isinstance(expanded_subs, ExpandedSubscriptions):
-                    raise TypeError(
-                        "expanded_subscriptions must be a list of list of strings"
-                    )
-                user_data["expanded_subscriptions"] = expanded_subs
-
-            users.append(ExtendedUser(**user_data))
+        users = [ExtendedUser(**user_data) for user_data in raw_users]
     else:
         raw_users = db.users.find()
         users = [User(**user_data) for user_data in raw_users]
