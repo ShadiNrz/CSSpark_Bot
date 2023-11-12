@@ -2,7 +2,7 @@
 
 ## Overview
 
-This bot is designed increase engagement on the r/CompSocial. It's built using Python 3 and the PRAW package.
+This bot is designed increase engagement on the r/CompSocial. It's built using Python 3, MongoDB, and the PRAW package.
 
 ## Requirements
 
@@ -12,12 +12,20 @@ This bot is designed increase engagement on the r/CompSocial. It's built using P
 
 ### Packages
 
+- dotenv
 - PRAW
 - pymongo
 
 To install the required packages, you can run:
 
 ```bash
+pip install -r requirements.txt
+```
+
+OR install manually
+
+```bash
+pip install python-dotenv
 pip install praw
 pip install pymongo
 ```
