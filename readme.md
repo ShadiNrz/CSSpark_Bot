@@ -13,12 +13,15 @@ This bot is designed increase engagement on the r/CompSocial. It's built using P
 ### Packages
 
 - PRAW
+- pymongo
 
-To install the required package, you can run:
+To install the required packages, you can run:
 
 ```bash
 pip install praw
+pip install pymongo
 ```
+
 
 ## Usage
 
