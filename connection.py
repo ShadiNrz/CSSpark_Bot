@@ -3,7 +3,7 @@ import os
 from pymongo import MongoClient
 
 from dotenv import load_dotenv, dotenv_values
-from db_types import ExtendedUser, Topic, User
+from db_types import ExtendedUser, Topic, User, ExpandedSubscriptions
 from keyword_pipeline import keyword_pipeline
 
 load_dotenv()
