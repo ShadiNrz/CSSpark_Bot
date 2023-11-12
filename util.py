@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Dict, List
-from db_types import Topic, User, KeywordExpansionDict
+from db_types import Topic, User, ExpandedSubscriptions
+
 
 def get_user_keyword_counts(users: List[User], post_text: str) -> Dict[str, int]:
     """
@@ -15,39 +16,30 @@ def get_user_keyword_counts(users: List[User], post_text: str) -> Dict[str, int]
     """
     user_keyword_counts = {}
     for user in users:
-        matching_keywords = count_subscribed_keywords(user, post_text)
-        if(matching_keywords > 0):
+        matching_keywords = count_subscribed_keywords(
+            user.expanded_subscriptions, post_text
+        )
+        if matching_keywords > 0:
             user_keyword_counts[user.reddit_username] = matching_keywords
     return user_keyword_counts
 
-def count_subscribed_keywords(user: User, post_text: str) -> int:
+
+def count_subscribed_keywords(
+    expanded_subscriptions: ExpandedSubscriptions, post_text: str
+) -> int:
     """
-    Finds the number of user-subscribed keywords present in the given Reddit post text.
+    Counts the number of keyword arrays where at least one keyword is present in a Reddit post's text.
 
     Parameters:
-        user (User): The user object containing subscribed keywords.
-        post_text (str): The text of the Reddit post to search for keywords.
-
-    Returns:
-        int: The number of subscribed keywords found in the post text. This is unique per keyword and doesn't include expanded keywords.
-    """
-    keyword_count = 0
-    # Your implementation here
-    # loop through the user's subscribed topics
-        # call is_topic_in_post for each topic, and increment keyword_count if true
-    return keyword_count
-
-def is_topic_in_post(topic: Topic, post_text: str, keyword_expansions: KeywordExpansionDict) -> bool:
-    """
-    Determines whether a given topic is present in a Reddit post's text, considering keyword expansions.
-
-    Parameters:
-        topic (Topic): The topic to search for in the post text (and wether to expand it).
+        expanded_subscriptions (list of list of str): Arrays of keywords, including expansions.
         post_text (str): The text content of the Reddit post.
-        keyword_expansions (KeywordExpansionDict): A mapping of keywords to their expansions.
 
     Returns:
-        bool: True if the topic is found in the post text, considering keyword expansions; otherwise, False.
+        int: The count of keyword arrays where at least one keyword is found in the post text.
     """
-    # Your implementation here
-    return False
+    # TODO: TEST ME
+    matched_count = 0
+    for keyword_array in expanded_subscriptions:
+        if any(keyword.lower() in post_text.lower() for keyword in keyword_array):
+            matched_count += 1
+    return matched_count

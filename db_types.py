@@ -1,18 +1,31 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import List
+
+
+ExpandedSubscriptions = List[List[str]]
 
 
 @dataclass
 class Topic:
-    topicName: str
-    isExpanded: bool
+    topic_name: str
+    is_expanded: bool
 
 
 @dataclass
 class User:
+    _id: str
     reddit_username: str
-    isPublic: bool
-    subscribedKeywords: List[Topic]
+    is_public: bool
+    subscribed_keywords: List[Topic]
 
 
-KeywordExpansionDict = Dict[str, List[str]]
+@dataclass
+class ExtendedUser:
+    _id: str
+    reddit_username: str
+    is_public: bool
+    expanded_subscriptions: ExpandedSubscriptions
+
+
+class Cluster:
+    word_cluster: List[str]
