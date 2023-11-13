@@ -21,50 +21,55 @@ except Exception as e:
 for db in client.list_databases():
     print(db)
 
-db = client["prod-reddit-bot"]
-
-# CODE TO REBUILD THE USERS DB
-db.users.delete_many({})
-db.users.insert_many(
-    [
-        {
-            "reddit_username": "123madskillz",
-            "is_public": True,
-            "subscribed_keywords": [
-                {"topic_name": "ai", "is_expanded": False},
-                {"topic_name": "gaming", "is_expanded": True},
-            ],
-        },
-        {
-            "reddit_username": "R_Online1",
-            "is_public": True,
-            "subscribed_keywords": [
-                {"topic_name": "ml", "is_expanded": True},
-                {"topic_name": "robotics", "is_expanded": False},
-            ],
-        },
-    ]
-)
-# delete and rebuild the keyword expansion list to keep it up to date
-db.keyword_expansion.delete_many({})
-db.keyword_expansion.insert_many(
-    [
-        {
-            "word_cluster": [
-                "ai",
-                "ml",
-                "artificial intelligence",
-                "machine learning",
-                "deep learning",
-            ],
-        },
-        {"word_cluster": ["gaming", "video games"]},
-        {"word_cluster": ["robotics", "robots", "hri"]},
-    ]
-)
+prod = client["prod-reddit-bot"]
+staging = client["staging-reddit-bot"]
 
 
-def get_users(aggregate: bool):
+def rebuild_sample_users_db(db):
+    staging.users.delete_many({})
+    staging.users.insert_many(
+        [
+            {
+                "reddit_username": "123madskillz",
+                "is_public": True,
+                "subscribed_keywords": [
+                    {"topic_name": "ai", "is_expanded": False},
+                    {"topic_name": "gaming", "is_expanded": True},
+                ],
+            },
+            {
+                "reddit_username": "R_Online1",
+                "is_public": True,
+                "subscribed_keywords": [
+                    {"topic_name": "ml", "is_expanded": True},
+                    {"topic_name": "robotics", "is_expanded": False},
+                ],
+            },
+        ]
+    )
+
+
+def rebuild_keyword_expansion_db(db):
+    # delete and rebuild the keyword expansion list to keep it up to date
+    db.keyword_expansion.delete_many({})
+    db.keyword_expansion.insert_many(
+        [
+            {
+                "word_cluster": [
+                    "ai",
+                    "ml",
+                    "artificial intelligence",
+                    "machine learning",
+                    "deep learning",
+                ],
+            },
+            {"word_cluster": ["gaming", "video games"]},
+            {"word_cluster": ["robotics", "robots", "hri"]},
+        ]
+    )
+
+
+def get_users(db, aggregate: bool):
     if aggregate:
         # fetch from db and aggregate
         raw_users = db.users.aggregate(keyword_pipeline)
@@ -82,15 +87,21 @@ def get_users(aggregate: bool):
     return users
 
 
-print(get_users(True))
-
-
-def get_user_by_username(username):
+def get_user_by_username(db, username, aggregate=False):
     return db.users.find_one({"reddit_username": username})
 
 
-# have not tested
-def add_keyword_to_user(username, keyword):
+def create_user(db, username, is_public=True, subscribed_keywords=[]):
+    db.users.insert_one(
+        {
+            "reddit_username": username,
+            "is_public": is_public,
+            "subscribed_keywords": subscribed_keywords,
+        }
+    )
+
+
+def add_keyword_to_user(db, username, keyword):
     db.users.update_one(
         {"reddit_username": username},
         {
@@ -102,20 +113,18 @@ def add_keyword_to_user(username, keyword):
     )
 
 
-# have not tested
-def unexpand_keyword_for_user(username, keyword):
+def unexpand_keyword_for_user(db, username, keyword):
     db.users.update_one(
         {"reddit_username": username, "subscribed_keywords.topic_name": keyword},
         {"$set": {"subscribed_keywords.$.is_expanded": False}},
     )
 
 
-# have not tested
-def remove_keyword_from_user(username, keyword):
-    db.users.updaåte_one(
+def remove_keyword_from_user(db, username, keyword):
+    db.users.update_one(
         {"reddit_username": username},
         {"$pull": {"subscribed_keywords": {"topic_name": keyword}}},
     )
 
 
-client.close()
+# client.close()
