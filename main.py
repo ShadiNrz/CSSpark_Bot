@@ -38,21 +38,21 @@ def keywordFormatting(body, operation):
     return keywords, keywords_string
 
 
-def handle_comment(comment):
-    if comment_keyword in comment.body:
-        try:
-            reply_text = f"Hii {comment.author.name}"
-            comment.reply(reply_text)
+#def handle_comment(comment):
+    #if comment_keyword in comment.body:
+        #try:
+            #reply_text = f"Hii {comment.author.name}"
+            #comment.reply(reply_text)
             # comment.author.message('Hello', 'How are you?') #TODO: Replace with whatever Rhett did
-            print(f"Replied to comment from {comment.author.name}")
-        except Exception as e:
-            print(str(e))
-            time.sleep(10)
+            #print(f"Replied to comment from {comment.author.name}")
+        #except Exception as e:
+            #print(str(e))
+            #time.sleep(10)
 
 
-def comment_stream():
-    for comment in subreddit.stream.comments(skip_existing=True):
-        handle_comment(comment)
+#def comment_stream():
+    #for comment in subreddit.stream.comments(skip_existing=True):
+        #handle_comment(comment)
 
 
 def handle_submission(submission):
@@ -75,11 +75,10 @@ def submission_stream():
 # Handle DMs
 def handle_dm(message):
     if message.was_comment:
+
         return  # Skip if this was a comment reply
 
     try:
-
-        print("Checking inbox...")
 
         message.mark_read()  # Mark message as read when fetching it
 
@@ -94,7 +93,9 @@ def handle_dm(message):
                     subscription_dict[author] = keywords
 
                 else:  # add new keywords to existing author's subscriptions
+
                     for word in keywords:
+
                         if word not in subscription_dict[author]:
                             subscription_dict[author].append(word)
 
@@ -102,11 +103,12 @@ def handle_dm(message):
                 message.reply("*Beep Boop* \n\nYou are now subscribed to keyword(s)" + keywords_string)
 
             elif "!unsub" in message.body:  # Remove keywords from a user's subscription list
-
                 keywords, keywords_string = keywordFormatting(message.body, "!unsub")  # Format keywords in message
 
                 if author in subscription_dict:  # remove keywords from user's subscription list
+
                     for keyword in keywords:
+
                         if keyword in subscription_dict[author]:
                             subscription_dict[author].remove(keyword)
 
@@ -114,6 +116,7 @@ def handle_dm(message):
                 message.reply("*Beep Boop* \n\nYou are now unsubscribed from keyword(s)" + keywords_string)
 
             elif "!publicme" in message.body:  # Make users public on request
+
                 if author not in public_users:
                     public_users.append(author)
 
@@ -121,6 +124,7 @@ def handle_dm(message):
                 message.reply("*Beep Boop* \n\nYour profile is now public.")
 
             elif "!privateme" in message.body:  # Make users private on request
+
                 if author in public_users:
                     public_users.remove(author)
 
@@ -138,13 +142,16 @@ def handle_dm(message):
                 users_per_keyword = {}
                 for word in keywords:
                     users_per_keyword[word] = []
+
                     for user in subscription_dict:
+
                         if user in public_users and word in subscription_dict[user]:
                             users_per_keyword[word].append(user.name)
 
                 # Have the bot reply to the command with found usernames
                 if str(users_per_keyword) != '[]':
                     message.reply("*Beep Boop* \n\nThese are the users I found:\n\n" + str(users_per_keyword))
+
                 else:
                     message.reply("*Beep Boop* \n\nI found no users!")
 
