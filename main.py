@@ -20,6 +20,8 @@ comment_keyword = "!hello"
 subscription_dict = {}
 public_users = []
 
+#TODO: Link subscription_dict and public_users to mongoDB - Shane, I'll need your help with this
+
 
 def keywordFormatting(body, operation):
     # seperate keywords by commas
