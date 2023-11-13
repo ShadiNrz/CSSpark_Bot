@@ -13,9 +13,29 @@ reddit = praw.Reddit(
 
 subreddit = reddit.subreddit("bot_playground")  # TODO: move to env file
 
-
 # Keyword to look for in comments
 comment_keyword = "!hello"
+
+# TEMPORARY STORAGE FOR SUBSCRIPTIONS AND USERNAMES
+subscription_dict = {}
+public_users = []
+
+
+def keywordFormatting(body, operation):
+    # seperate keywords by commas
+    operation = operation + " "
+    keywords = body.replace(operation, "").split(", ")
+
+    # force keywords into lower case
+    keywords = [k.lower() for k in keywords]
+
+    keywords_string = ""
+    for word in keywords:
+        keywords_string = keywords_string + ", " + word
+    keywords_string = keywords_string.split(",")[1:]
+    keywords_string = ", ".join(keywords_string)
+
+    return keywords, keywords_string
 
 
 def handle_comment(comment):
@@ -30,6 +50,11 @@ def handle_comment(comment):
             time.sleep(10)
 
 
+def comment_stream():
+    for comment in subreddit.stream.comments(skip_existing=True):
+        handle_comment(comment)
+
+
 def handle_submission(submission):
     try:
         title_upper = submission.title.upper()
@@ -42,11 +67,6 @@ def handle_submission(submission):
         time.sleep(10)
 
 
-def comment_stream():
-    for comment in subreddit.stream.comments(skip_existing=True):
-        handle_comment(comment)
-
-
 def submission_stream():
     for submission in subreddit.stream.submissions(skip_existing=True):
         handle_submission(submission)
@@ -56,9 +76,78 @@ def submission_stream():
 def handle_dm(message):
     if message.was_comment:
         return  # Skip if this was a comment reply
+
     try:
-        message.reply(f"No u: {message.body}")
-        print(f"Replied to DM from {message.author.name}")
+
+        print("Checking inbox...")
+
+        message.mark_read()  # Mark message as read when fetching it
+
+        author = message.author  # Reddit "user" object - author of sent message
+
+        if message.subject == "Bot Command":  # check if message subject is "Bot Command"
+
+            if "!sub" in message.body:  # sub command passed - add new keyword subscription for user
+                keywords, keywords_string = keywordFormatting(message.body, "!sub")  # Format keywords in message
+
+                if author not in subscription_dict:  # add author and keywords to the author's subscriptions
+                    subscription_dict[author] = keywords
+
+                else:  # add new keywords to existing author's subscriptions
+                    for word in keywords:
+                        if word not in subscription_dict[author]:
+                            subscription_dict[author].append(word)
+
+                # send confirmation message in reply
+                message.reply("*Beep Boop* \n\nYou are now subscribed to keyword(s)" + keywords_string)
+
+            elif "!unsub" in message.body:  # Remove keywords from a user's subscription list
+
+                keywords, keywords_string = keywordFormatting(message.body, "!unsub")  # Format keywords in message
+
+                if author in subscription_dict:  # remove keywords from user's subscription list
+                    for keyword in keywords:
+                        if keyword in subscription_dict[author]:
+                            subscription_dict[author].remove(keyword)
+
+                # Reply to author of message affirming unsubscription
+                message.reply("*Beep Boop* \n\nYou are now unsubscribed from keyword(s)" + keywords_string)
+
+            elif "!publicme" in message.body:  # Make users public on request
+                if author not in public_users:
+                    public_users.append(author)
+
+                # Have the bot reply to the comment confirming privacy setting changed
+                message.reply("*Beep Boop* \n\nYour profile is now public.")
+
+            elif "!privateme" in message.body:  # Make users private on request
+                if author in public_users:
+                    public_users.remove(author)
+
+                # Have the bot reply to the comment confirming privacy setting changed
+                message.reply("*Beep Boop* \n\nYour profile is now private.")
+
+            # DO WE REMOVE THIS?
+            ############
+            elif "!findusers" in message.body:  # list users who are subscribed to a certain keyword
+                ###########
+
+                # Format keywords in message
+                keywords, keywords_string = keywordFormatting(message.body, "!findusers")
+
+                users_per_keyword = {}
+                for word in keywords:
+                    users_per_keyword[word] = []
+                    for user in subscription_dict:
+                        if user in public_users and word in subscription_dict[user]:
+                            users_per_keyword[word].append(user.name)
+
+                # Have the bot reply to the command with found usernames
+                if str(users_per_keyword) != '[]':
+                    message.reply("*Beep Boop* \n\nThese are the users I found:\n\n" + str(users_per_keyword))
+                else:
+                    message.reply("*Beep Boop* \n\nI found no users!")
+
     except Exception as e:
         print(str(e))
         time.sleep(10)
