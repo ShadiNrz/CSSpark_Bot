@@ -43,3 +43,20 @@ def count_subscribed_keywords(
         if any(keyword.lower() in post_text.lower() for keyword in keyword_array):
             matched_count += 1
     return matched_count
+
+
+def get_cluster(keyword: str, clusters: List[List[str]]) -> bool:
+    """
+    Returns the cluster that contains the given keyword.
+
+    Parameters:
+        keyword (str): The keyword to find.
+        clusters (List[List[str]]): A list of clusters, where each cluster is a list of keywords.
+
+    Returns:
+        List[str]: The cluster that contains the given keyword.
+    """
+    for cluster in clusters:
+        if keyword in cluster:
+            return cluster
+    return None

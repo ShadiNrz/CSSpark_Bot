@@ -69,6 +69,10 @@ def rebuild_keyword_expansion_db(db):
     )
 
 
+def get_clusters(db):
+    return db.keyword_expansion.find()
+
+
 def get_users(db, aggregate: bool):
     if aggregate:
         # fetch from db and aggregate
