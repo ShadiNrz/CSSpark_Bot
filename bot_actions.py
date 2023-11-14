@@ -138,3 +138,34 @@ def on_unexpand(db, reddit_username, keyword, respond):
 
     unexpand_keyword_for_user(db, reddit_username, keyword)
     respond(f"Sucessfully unexpanded {keyword}!")
+
+
+def on_list_user_keywords(db, reddit_username, respond):
+    """
+    Called when a user wants to list their subscribed keywords.
+
+    Parameters:
+        db (Database): The database object.
+        user (User): The user object.
+        respond (function): A function that can be called to respond to the user.
+    """
+    print(f"User {reddit_username} wants to list their subscribed keywords.")
+    user = get_user_by_username(db, reddit_username)
+    if user == None:
+        respond(
+            f"User {reddit_username} not found, please subscribe to a keyword with with !sub command"
+        )
+        return
+    # loop through the user's keywords and their expanded status and add to a string
+    clusters = get_clusters(db)
+    keyword_list = ""
+    for topic in user["subscribed_keywords"]:
+        keyword_list += (
+            f"\ttopic_name: {topic['topic_name']}, is_expanded: {topic['is_expanded']}"
+        )
+        if topic["is_expanded"]:
+            keyword_list += f"expanded keywords: {', '.join(
+                get_cluster(topic['topic_name'],clusters )
+                )}"
+        keyword_list += "\n"
+    respond(f"Subscribed keywords list for {reddit_username}: \n{keyword_list}")
