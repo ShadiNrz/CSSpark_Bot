@@ -11,7 +11,6 @@ from util import get_cluster, get_user_keyword_counts
 
 MAX_PINGS = 7  # TODO: Add this to the database so that mods can configure it
 
-
 def on_reddit_post(db, submission):
     """
     Called when a new Reddit post is detected.
@@ -169,3 +168,20 @@ def on_list_user_keywords(db, reddit_username, respond):
                 )}"
         keyword_list += "\n"
     respond(f"Subscribed keywords list for {reddit_username}: \n{keyword_list}")
+
+def on_visibility_request(db, reddit_username, request):
+    """
+        Called when a user wants to change their public/private status
+
+        Parameters:
+            db (Database): The database object.
+            reddit_username: The username of the user
+            request: string ["private" or "public"]
+        """
+    user = get_user_by_username(db, reddit_username)
+
+    if request == "public":
+        user.is_public = True
+    else:
+        user.is_public = False
+

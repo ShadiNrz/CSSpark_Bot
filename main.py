@@ -2,6 +2,8 @@ import re
 import praw
 import time
 import threading
+import bot_actions
+from connection import staging
 
 reddit = praw.Reddit(
     client_id="zRFmLVVtIrtotSAiwLQU0Q",
@@ -11,59 +13,25 @@ reddit = praw.Reddit(
     password="pVzNkPER9JmFYAf",  # TODO: Change bot username and remove password from code
 )
 
+# TODO: get new client id and secret - new bot credentials below
+# Username: CSSpark_Bot
+# Password:Botbros7760321?
+
 subreddit = reddit.subreddit("bot_playground")  # TODO: move to env file
 
 # Keyword to look for in comments
 comment_keyword = "!hello"
 
-# TEMPORARY STORAGE FOR SUBSCRIPTIONS AND USERNAMES
-subscription_dict = {}
-public_users = []
 
-#TODO: Link subscription_dict and public_users to mongoDB - Shane, I'll need your help with this
-
-
-def keywordFormatting(body, operation):
-    # seperate keywords by commas
-    operation = operation + " "
-    keywords = body.replace(operation, "").split(", ")
-
-    # force keywords into lower case
-    keywords = [k.lower() for k in keywords]
-
-    keywords_string = ""
-    for word in keywords:
-        keywords_string = keywords_string + ", " + word
-    keywords_string = keywords_string.split(",")[1:]
-    keywords_string = ", ".join(keywords_string)
-
-    return keywords, keywords_string
-
-
-#def handle_comment(comment):
-    #if comment_keyword in comment.body:
-        #try:
-            #reply_text = f"Hii {comment.author.name}"
-            #comment.reply(reply_text)
-            # comment.author.message('Hello', 'How are you?') #TODO: Replace with whatever Rhett did
-            #print(f"Replied to comment from {comment.author.name}")
-        #except Exception as e:
-            #print(str(e))
-            #time.sleep(10)
-
-
-#def comment_stream():
-    #for comment in subreddit.stream.comments(skip_existing=True):
-        #handle_comment(comment)
+def comment_stream():
+    for comment in subreddit.stream.comments(skip_existing=True):
+        handle_command(comment)
 
 
 def handle_submission(submission):
     try:
-        title_upper = submission.title.upper()
-        self_text_upper = submission.selftext.upper()
-        reply_text = f"Title: {title_upper}\n\nContent: {self_text_upper}"
-        submission.reply(reply_text)
-        print(f"Replied to submission {submission.id}")
+        bot_actions.on_reddit_post(staging, submission)
+
     except Exception as e:
         print(str(e))
         time.sleep(10)
@@ -74,88 +42,62 @@ def submission_stream():
         handle_submission(submission)
 
 
-# Handle DMs
-def handle_dm(message):
-    if message.was_comment:
+def message_check(message):
+    try:  # try to get subject of message if it is a DM - check if subject is Bot Command
 
-        return  # Skip if this was a comment reply
+        if message.subject == "Bot Command":
+            message.mark_read()  # Mark message as read when fetching it
+            return "DM"
+        else:
+            return "Error"
 
+    except:
+
+        return "Comment"
+
+
+# Handle DMs or Comments
+def handle_command(message):
     try:
-
-        message.mark_read()  # Mark message as read when fetching it
 
         author = message.author  # Reddit "user" object - author of sent message
 
-        if message.subject == "Bot Command":  # check if message subject is "Bot Command"
+        isDM = message_check(message)  # string indicating type of message - checks for correct DM format
 
-            if "!sub" in message.body:  # sub command passed - add new keyword subscription for user
-                keywords, keywords_string = keywordFormatting(message.body, "!sub")  # Format keywords in message
+        if isDM == "Error":
+            return
 
-                if author not in subscription_dict:  # add author and keywords to the author's subscriptions
-                    subscription_dict[author] = keywords
+        ##############################################################################
 
-                else:  # add new keywords to existing author's subscriptions
+        def respond(text):  # embedded function - sends a string reply to bot command
 
-                    for word in keywords:
+            message.reply(text)
+            return
 
-                        if word not in subscription_dict[author]:
-                            subscription_dict[author].append(word)
+        ##############################################################################
 
-                # send confirmation message in reply
-                message.reply("*Beep Boop* \n\nYou are now subscribed to keyword(s)" + keywords_string)
+        if "!sub" in message.body:
 
-            elif "!unsub" in message.body:  # Remove keywords from a user's subscription list
-                keywords, keywords_string = keywordFormatting(message.body, "!unsub")  # Format keywords in message
+            bot_actions.on_subscribe(staging, author.username, respond())
 
-                if author in subscription_dict:  # remove keywords from user's subscription list
+        elif "!unsub" in message.body:  # Remove keywords from a user's subscription list
 
-                    for keyword in keywords:
+            bot_actions.on_unsubscribe(staging, author.username, respond())
 
-                        if keyword in subscription_dict[author]:
-                            subscription_dict[author].remove(keyword)
+        elif "!list" in message.body:  # User asks for keywords they are subscribed to
 
-                # Reply to author of message affirming unsubscription
-                message.reply("*Beep Boop* \n\nYou are now unsubscribed from keyword(s)" + keywords_string)
+            bot_actions.on_list_user_keywords(staging, author.username, respond())
 
-            elif "!publicme" in message.body:  # Make users public on request
+        elif "!publicme" in message.body:  # Make users public on request
 
-                if author not in public_users:
-                    public_users.append(author)
+            bot_actions.on_visibility_request(staging, author.username, "public")
 
-                # Have the bot reply to the comment confirming privacy setting changed
-                message.reply("*Beep Boop* \n\nYour profile is now public.")
+        elif "!privateme" in message.body:  # Make users private on request
 
-            elif "!privateme" in message.body:  # Make users private on request
+            bot_actions.on_visibility_request(staging, author.username, "private")
 
-                if author in public_users:
-                    public_users.remove(author)
+        # elif "!findusers" in message.body:  # list users who are subscribed to a certain keyword
 
-                # Have the bot reply to the comment confirming privacy setting changed
-                message.reply("*Beep Boop* \n\nYour profile is now private.")
-
-            # DO WE REMOVE THIS?
-            ############
-            elif "!findusers" in message.body:  # list users who are subscribed to a certain keyword
-                ###########
-
-                # Format keywords in message
-                keywords, keywords_string = keywordFormatting(message.body, "!findusers")
-
-                users_per_keyword = {}
-                for word in keywords:
-                    users_per_keyword[word] = []
-
-                    for user in subscription_dict:
-
-                        if user in public_users and word in subscription_dict[user]:
-                            users_per_keyword[word].append(user.name)
-
-                # Have the bot reply to the command with found usernames
-                if str(users_per_keyword) != '[]':
-                    message.reply("*Beep Boop* \n\nThese are the users I found:\n\n" + str(users_per_keyword))
-
-                else:
-                    message.reply("*Beep Boop* \n\nI found no users!")
 
     except Exception as e:
         print(str(e))
@@ -165,7 +107,7 @@ def handle_dm(message):
 # Main function for DM stream
 def dm_stream():
     for message in reddit.inbox.stream(skip_existing=True):
-        handle_dm(message)
+        handle_command(message)
 
 
 if __name__ == "__main__":
