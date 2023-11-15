@@ -131,4 +131,11 @@ def remove_keyword_from_user(db, username, keyword):
     )
 
 
+def set_user_is_public(db, username, is_public):
+    db.users.update_one(
+        {"reddit_username": username},
+        {"$set": {"is_public": is_public}},
+    )
+
+
 # client.close()

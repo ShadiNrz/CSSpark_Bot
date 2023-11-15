@@ -5,11 +5,31 @@ from connection import (
     get_users,
     create_user,
     remove_keyword_from_user,
+    set_user_is_public,
     unexpand_keyword_for_user,
 )
 from util import get_cluster, get_user_keyword_counts
 
 MAX_PINGS = 7  # TODO: Add this to the database so that mods can configure it
+
+
+def test_reddit_post(db, text, respond):
+    """
+    Tests getting the users to ping
+    """
+    # Get all users from the database
+    users = get_users(db, True)
+    filtered_users = get_user_keyword_counts(users, text)
+    print(filtered_users)
+    top_users = sorted(filtered_users, key=filtered_users.get, reverse=True)[:MAX_PINGS]
+    top_users_str = ", ".join([f"u/{user}" for user in top_users])
+    if len(top_users) == 0:
+        # no response if no users are found
+        return
+    respond(
+        f"{top_users_str} you are mentioned because your keywords were found in this post!"
+    )
+
 
 def on_reddit_post(db, submission):
     """
@@ -63,7 +83,7 @@ def on_subscribe(db, reddit_username, keyword, respond):
         print(f"found cluster for {keyword}")
         cluster = get_cluster(keyword, get_clusters(db))
         respond(
-            f"Sucessfully subscribed to {keyword}! That keyword is part of the cluster with the following keywords: {' ,'.join(cluster)}, if you would like to only subscribe to the keyword you entered and not the entire cluster, please type \n!unexpand {keyword}"
+            f"Sucessfully subscribed ${reddit_username} to {keyword}! That keyword is part of the cluster with the following keywords: {' ,'.join(cluster)}, if you would like to only subscribe to the keyword you entered and not the entire cluster, please type \n!unexpand {keyword}"
         )
     else:
         respond(f"Sucessfully subscribed to {keyword}!")
@@ -163,25 +183,50 @@ def on_list_user_keywords(db, reddit_username, respond):
             f"\ttopic_name: {topic['topic_name']}, is_expanded: {topic['is_expanded']}"
         )
         if topic["is_expanded"]:
-            keyword_list += f"expanded keywords: {', '.join(
-                get_cluster(topic['topic_name'],clusters )
-                )}"
+            keyword_list += f"expanded keywords: {', '.join(get_cluster(topic['topic_name'],clusters ))}"
         keyword_list += "\n"
     respond(f"Subscribed keywords list for {reddit_username}: \n{keyword_list}")
 
-def on_visibility_request(db, reddit_username, request):
+
+def on_publicme(db, reddit_username, respond):
     """
-        Called when a user wants to change their public/private status
+    Called when a user wants to change their public/private status
 
-        Parameters:
-            db (Database): The database object.
-            reddit_username: The username of the user
-            request: string ["private" or "public"]
-        """
+    Parameters:
+        db (Database): The database object.
+        reddit_username: The username of the user
+        respond (function): A function that can be called to respond to the user.
+    """
     user = get_user_by_username(db, reddit_username)
+    if user == None:
+        respond(
+            f"User {reddit_username} not found, please subscribe to a keyword with with !sub command"
+        )
+        return
+    if user["is_public"]:
+        respond(f"User {reddit_username} is already public")
+        return
+    set_user_is_public(db, reddit_username, True)
+    respond(f"User {reddit_username} is now public")
 
-    if request == "public":
-        user.is_public = True
-    else:
-        user.is_public = False
 
+def on_privateme(db, reddit_username, respond):
+    """
+    Called when a user wants to change their public/private status
+
+    Parameters:
+        db (Database): The database object.
+        reddit_username: The username of the user
+        respond (function): A function that can be called to respond to the user.
+    """
+    user = get_user_by_username(db, reddit_username)
+    if user == None:
+        respond(
+            f"User {reddit_username} not found, please subscribe to a keyword with with !sub command"
+        )
+        return
+    if not user["is_public"]:
+        respond(f"User {reddit_username} is already private")
+        return
+    set_user_is_public(db, reddit_username, False)
+    respond(f"User {reddit_username} is now private")
