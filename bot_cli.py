@@ -51,40 +51,41 @@ def main():
         cmd = command.command
         if cmd == "!exit":
             break
-        elif cmd == "!list":
+
+        if cmd == "!list":
             data = get_users(staging, aggregate=False)
             for user in data:
                 print(user.reddit_username)
                 print(
                     f"Public: {user.is_public}, Subscribed keywords: {user.subscribed_keywords}"
                 )
-        elif cmd == "!listexpansions":
+
+        if cmd == "!listexpansions":
             data = get_users(staging, aggregate=True)
             for user in data:
                 print(user.reddit_username)
                 print(
                     f"Public: {user.is_public}, expanded keywords: {user.expanded_subscriptions}"
                 )
-        elif cmd == "!testpost":
+
+        if cmd == "!testpost":
             text = input("Enter reddit post text ")
             test_reddit_post(staging, text, respond)
-        elif cmd == "!sub":
-            username = input("Enter username ")
+
+        username = input("Enter username ")
+
+        if cmd == "!sub":
             keyword = args[0]
             on_subscribe(staging, username, keyword, respond)
         elif cmd == "!unsub":
-            username = input("Enter username ")
             keyword = args[0]
             on_unsubscribe(staging, username, keyword, respond)
         elif cmd == "!unexpand":
-            username = input("Enter username ")
             keyword = args[0]
             on_unexpand(staging, username, keyword, respond)
         elif cmd == "!publicme":
-            username = input("Enter username ")
             on_publicme(staging, username, respond)
         elif cmd == "!privateme":
-            username = input("Enter username ")
             on_privateme(staging, username, respond)
         else:
             print("Invalid command")

@@ -5,8 +5,11 @@ import praw
 import time
 import threading
 import bot_actions
-from connection import staging
+from command_parser import parse_command
+from connection import staging, prod
 
+### SET THIS TO PROD BEFORE DEPLOYING
+db = staging
 load_dotenv()
 config = dotenv_values(".env")
 
@@ -31,7 +34,7 @@ def comment_stream():
 
 def handle_submission(submission):
     try:
-        bot_actions.on_reddit_post(staging, submission)
+        bot_actions.on_reddit_post(db, submission)
 
     except Exception as e:
         print(str(e))
@@ -60,10 +63,8 @@ def handle_command(message):
     try:
         author = message.author  # Reddit "user" object - author of sent message
 
-        isDM = message_check(
-            message
-        )  # string indicating type of message - checks for correct DM format
-        message.reply("test of DM functionality")
+        isDM = message_check(message)
+        # string indicating type of message - checks for correct DM format
         if isDM == "Error":
             return
 
@@ -74,25 +75,32 @@ def handle_command(message):
             return
 
         ##############################################################################
+        command = parse_command(message.body)
+        cmd, args = command.command, command.args
+        if cmd == "!sub":
+            # todo possibly support multiple comma separated keywords
+            if len(args) == 0:
+                respond(
+                    "No keyword specified, you can subscribe to a keyword using !sub keyword"
+                )
+                return
+            bot_actions.on_subscribe(db, author.name, args[0], respond)
+        elif cmd == "!unsub":
+            if len(args) == 0:
+                respond(
+                    "No keyword specified, you can unsubscribe to a keyword using !unsub keyword"
+                )
+                return
+            # Remove keywords from a user's subscription list
+            bot_actions.on_unsubscribe(db, author.name, args[0], respond)
+        elif cmd == "!list":  # User asks for keywords they are subscribed to
+            bot_actions.on_list_user_keywords(db, author.name, respond)
+        elif cmd == "!publicme":  # Make users public on request
+            bot_actions.on_publicme(db, author.name, respond)
+        elif cmd == "!privateme":  # Make users private on request
+            bot_actions.on_privateme(db, author.name, respond)
 
-        if "!sub" in message.body:
-            bot_actions.on_subscribe(staging, author.username, respond())
-
-        elif (
-            "!unsub" in message.body
-        ):  # Remove keywords from a user's subscription list
-            bot_actions.on_unsubscribe(staging, author.username, respond())
-
-        elif "!list" in message.body:  # User asks for keywords they are subscribed to
-            bot_actions.on_list_user_keywords(staging, author.username, respond())
-
-        elif "!publicme" in message.body:  # Make users public on request
-            bot_actions.on_visibility_request(staging, author.username, "public")
-
-        elif "!privateme" in message.body:  # Make users private on request
-            bot_actions.on_visibility_request(staging, author.username, "private")
-
-        # elif "!findusers" in message.body:  # list users who are subscribed to a certain keyword
+        # elif cmd == "!findusers":  # list users who are subscribed to a certain keyword
 
     except Exception as e:
         print(str(e))
