@@ -1,21 +1,22 @@
 import re
+import os
+from dotenv import dotenv_values, load_dotenv
 import praw
 import time
 import threading
 import bot_actions
 from connection import staging
 
-reddit = praw.Reddit(
-    client_id="zRFmLVVtIrtotSAiwLQU0Q",
-    client_secret="KQQgQEj87V7t4u4Ob9FYTscq1BdL6w",
-    user_agent="Kerbal_Bot",
-    username="Kerbal_Bot",
-    password="pVzNkPER9JmFYAf",  # TODO: Change bot username and remove password from code
-)
+load_dotenv()
+config = dotenv_values(".env")
 
-# TODO: get new client id and secret - new bot credentials below
-# Username: CSSpark_Bot
-# Password:Botbros7760321?
+reddit = praw.Reddit(
+    client_id=os.environ["client_id"],
+    client_secret=os.environ["client_secret"],
+    user_agent="CSSpark_Bot",
+    username=os.environ["username"],
+    password=os.environ["password"],
+)
 
 subreddit = reddit.subreddit("bot_playground")  # TODO: move to env file
 
@@ -62,7 +63,7 @@ def handle_command(message):
         isDM = message_check(
             message
         )  # string indicating type of message - checks for correct DM format
-
+        message.reply("test of DM functionality")
         if isDM == "Error":
             return
 
