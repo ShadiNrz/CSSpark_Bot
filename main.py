@@ -44,25 +44,24 @@ def submission_stream():
 
 def message_check(message):
     try:  # try to get subject of message if it is a DM - check if subject is Bot Command
-
-        if message.subject == "Bot Command":
+        if message.subject.lower() == "bot command":
             message.mark_read()  # Mark message as read when fetching it
             return "DM"
         else:
             return "Error"
 
     except:
-
         return "Comment"
 
 
 # Handle DMs or Comments
 def handle_command(message):
     try:
-
         author = message.author  # Reddit "user" object - author of sent message
 
-        isDM = message_check(message)  # string indicating type of message - checks for correct DM format
+        isDM = message_check(
+            message
+        )  # string indicating type of message - checks for correct DM format
 
         if isDM == "Error":
             return
@@ -70,34 +69,29 @@ def handle_command(message):
         ##############################################################################
 
         def respond(text):  # embedded function - sends a string reply to bot command
-
             message.reply(text)
             return
 
         ##############################################################################
 
         if "!sub" in message.body:
-
             bot_actions.on_subscribe(staging, author.username, respond())
 
-        elif "!unsub" in message.body:  # Remove keywords from a user's subscription list
-
+        elif (
+            "!unsub" in message.body
+        ):  # Remove keywords from a user's subscription list
             bot_actions.on_unsubscribe(staging, author.username, respond())
 
         elif "!list" in message.body:  # User asks for keywords they are subscribed to
-
             bot_actions.on_list_user_keywords(staging, author.username, respond())
 
         elif "!publicme" in message.body:  # Make users public on request
-
             bot_actions.on_visibility_request(staging, author.username, "public")
 
         elif "!privateme" in message.body:  # Make users private on request
-
             bot_actions.on_visibility_request(staging, author.username, "private")
 
         # elif "!findusers" in message.body:  # list users who are subscribed to a certain keyword
-
 
     except Exception as e:
         print(str(e))

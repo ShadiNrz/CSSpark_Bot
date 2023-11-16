@@ -1,3 +1,4 @@
+from bot_actions_helpers import get_or_create_user, is_user_subscribed_to_keyword
 from connection import (
     add_keyword_to_user,
     get_clusters,
@@ -66,22 +67,11 @@ def on_subscribe(db, reddit_username, keyword, respond):
         respond (function): A function that can be called to respond to the user.
     """
     print(f"User {reddit_username} subscribed to keyword {keyword}.")
-    user = get_user_by_username(db, reddit_username)
-    if user == None:
-        print(f"User {reddit_username} not found, creating an account")
-        create_user(
-            db, reddit_username, True, [{"topic_name": keyword, "is_expanded": True}]
-        )
-    else:
-        print(f"User {reddit_username} found, adding keyword")
-        add_keyword_to_user(db, reddit_username, keyword)
-
-    print(f"subscribed to {keyword}")
-
+    get_or_create_user(db, reddit_username)
+    add_keyword_to_user(db, reddit_username, keyword)
     # check if keyword is part of a cluster
-    if get_cluster(keyword, get_clusters(db)):
-        print(f"found cluster for {keyword}")
-        cluster = get_cluster(keyword, get_clusters(db))
+    cluster = get_cluster(keyword, get_clusters(db))
+    if cluster:
         respond(
             f"Sucessfully subscribed ${reddit_username} to {keyword}! That keyword is part of the cluster with the following keywords: {' ,'.join(cluster)}, if you would like to only subscribe to the keyword you entered and not the entire cluster, please type \n!unexpand {keyword}"
         )
@@ -101,23 +91,17 @@ def on_unsubscribe(db, reddit_username, keyword, respond):
     """
     print(f"User {reddit_username} wants to unsubscribe to {keyword}.")
     user = get_user_by_username(db, reddit_username)
-    if user == None:
-        respond(
-            f"User {reddit_username} not found, please subscribe to a keyword with with !sub command"
-        )
-        return
+    if not user:
+        respond("User not found, please subscribe to a keyword with with !sub command")
 
-    print(f"User {reddit_username} found, unsubscribing keyword")
     # check if the user has the keyword
-    if not any(keyword in topic["topic_name"] for topic in user["subscribed_keywords"]):
+    if not is_user_subscribed_to_keyword(user, keyword):
         respond(
-            f"User {reddit_username} not subscribed to keyword {keyword}, please subscribe to a keyword with with !sub command"
+            f"User {reddit_username} not subscribed to keyword {keyword}, please subscribe with the !sub command"
         )
         return
     remove_keyword_from_user(db, reddit_username, keyword)
     respond(f"Sucessfully unsubscribed to {keyword}!")
-
-    print(f"unsubscribed to {keyword}")
 
 
 def on_unexpand(db, reddit_username, keyword, respond):
@@ -130,22 +114,9 @@ def on_unexpand(db, reddit_username, keyword, respond):
         keyword (str): The keyword that the user unsubscribed to.
         respond (function): A function that can be called to respond to the user.
     """
-    print(f"User {reddit_username} wants to unexpand {keyword}.")
     user = get_user_by_username(db, reddit_username)
-    if user == None:
-        respond(
-            f"User {reddit_username} not found, please subscribe to the keyword with with !sub command"
-        )
-        return
-
-    print(f"User {reddit_username} found, unexpanding keyword")
-
-    # check if the user has the keyword
-    if not any(keyword in topic["topic_name"] for topic in user["subscribed_keywords"]):
-        respond(
-            f"User {reddit_username} not subscribed to keyword {keyword}, please subscribe to the keyword with with !sub command"
-        )
-        return
+    if not user:
+        respond("User not found, please subscribe to a keyword with with !sub command")
 
     # check if the keyword is already unexpanded
     if any(
@@ -168,13 +139,9 @@ def on_list_user_keywords(db, reddit_username, respond):
         user (User): The user object.
         respond (function): A function that can be called to respond to the user.
     """
-    print(f"User {reddit_username} wants to list their subscribed keywords.")
     user = get_user_by_username(db, reddit_username)
-    if user == None:
-        respond(
-            f"User {reddit_username} not found, please subscribe to a keyword with with !sub command"
-        )
-        return
+    if not user:
+        respond("User not found, please subscribe to a keyword with with !sub command")
     # loop through the user's keywords and their expanded status and add to a string
     clusters = get_clusters(db)
     keyword_list = ""

@@ -1,3 +1,4 @@
+from command_parser import is_missing_args, is_missing_command, parse_command
 from connection import get_users, staging
 from bot_actions import (
     on_reddit_post,
@@ -9,6 +10,19 @@ from bot_actions import (
     on_publicme,
 )
 
+command_list = {
+    "!sub": 1,
+    "!unsub": 1,
+    "!unexpand": 1,
+    "!publicme": 0,
+    "!privateme": 0,
+    "!list": 0,
+    "!listexpansions": 0,
+    "!testpost": 0,
+    "!listusers": 0,
+    "!exit": 0,
+}
+
 
 def main():
     def respond(text):
@@ -16,41 +30,60 @@ def main():
 
     while True:
         input_command = input("Enter a bot command: ")
-        if input_command == "exit":
+        command = parse_command(input_command)
+        if is_missing_command(command):
+            print(
+                "Missing command (!sub, !unsub, !unexpand, !publicme, !privateme, !list, !listusers)"
+            )
+            continue
+        if command.command not in command_list:
+            print(command.command)
+            print("Invalid command")
+            continue
+        arg_count = command_list[command.command]
+
+        if len(command.args) != arg_count:
+            print(
+                f"Invalid number of arguments. Expected {arg_count}, got {len(command.args)}"
+            )
+            continue
+        args = command.args
+        cmd = command.command
+        if cmd == "!exit":
             break
-        elif input_command == "ls":
+        elif cmd == "!list":
             data = get_users(staging, aggregate=False)
             for user in data:
                 print(user.reddit_username)
                 print(
                     f"Public: {user.is_public}, Subscribed keywords: {user.subscribed_keywords}"
                 )
-        elif input_command == "ls -e":
+        elif cmd == "!listexpansions":
             data = get_users(staging, aggregate=True)
             for user in data:
                 print(user.reddit_username)
                 print(
                     f"Public: {user.is_public}, expanded keywords: {user.expanded_subscriptions}"
                 )
-        elif input_command == "reddit_post":
+        elif cmd == "!testpost":
             text = input("Enter reddit post text ")
             test_reddit_post(staging, text, respond)
-        elif input_command == "!sub":
+        elif cmd == "!sub":
             username = input("Enter username ")
-            keyword = input("Enter keyword ")
+            keyword = args[0]
             on_subscribe(staging, username, keyword, respond)
-        elif input_command == "!unsub":
+        elif cmd == "!unsub":
             username = input("Enter username ")
-            keyword = input("Enter keyword ")
+            keyword = args[0]
             on_unsubscribe(staging, username, keyword, respond)
-        elif input_command == "!unexpand":
+        elif cmd == "!unexpand":
             username = input("Enter username ")
-            keyword = input("Enter keyword ")
+            keyword = args[0]
             on_unexpand(staging, username, keyword, respond)
-        elif input_command == "!publicme":
+        elif cmd == "!publicme":
             username = input("Enter username ")
             on_publicme(staging, username, respond)
-        elif input_command == "!privateme":
+        elif cmd == "!privateme":
             username = input("Enter username ")
             on_privateme(staging, username, respond)
         else:
