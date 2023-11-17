@@ -1,3 +1,5 @@
+from praw import reddit
+
 from bot_actions_helpers import get_or_create_user, is_user_subscribed_to_keyword
 from connection import (
     add_keyword_to_user,
@@ -45,15 +47,40 @@ def on_reddit_post(db, submission):
 
     # Get all users from the database
     users = get_users(db, True)
-    filtered_users = get_user_keyword_counts(users, f"{title} {post_text}")
+
+    publicUsers = []
+    privateUsers = []
+
+    # sort users based on privacy status
+    for user in users:
+        if user.is_public:
+            publicUsers.append(user)
+        else:
+            privateUsers.append(user)
+
+    public_filtered_users = get_user_keyword_counts(publicUsers, f"{title} {post_text}")
+    private_filtered_users = get_user_keyword_counts(privateUsers, f"{title} {post_text}")
+
     # get the top MAX_PINGS users (not sure if this works)
     # TODO: seperate public from private users
-    top_users = sorted(filtered_users, key=filtered_users.get, reverse=True)[:MAX_PINGS]
-    top_users_str = ", ".join(top_users)
-    submission.reply(
-        f"{top_users_str} you are mentioned because your keywords were found in this post!"
-    )
+    top_public_users = sorted(public_filtered_users, key=public_filtered_users.get, reverse=True)[:MAX_PINGS]
+    top_private_users = sorted(private_filtered_users, key=private_filtered_users.get, reverse=True)[:MAX_PINGS]
+
+    top_public_users_str = ", ".join(top_public_users)
+
+    if len(top_public_users) != 0:
+        submission.reply(
+            f"{top_public_users_str} you are mentioned because your keywords were found in this post!"
+        )
+
+    if len(top_private_users) != 0:
+        for user in top_private_users:
+            reddit.redditor(user.reddit_username).message(
+                f"{user.reddit_username}, check out this post containing your keyword(s): {title}"
+            )
+
     print(f"Replied to submission {submission.id}: {title}")
+    print(f"Sent messages to private users in reply to {submission.id}: {title}")
 
 
 def on_subscribe(db, reddit_username, keyword, respond):
@@ -67,7 +94,7 @@ def on_subscribe(db, reddit_username, keyword, respond):
         respond (function): A function that can be called to respond to the user.
     """
     print(f"User {reddit_username} subscribed to keyword {keyword}.")
-    get_or_create_user(db, reddit_username)
+    get_or_create_user(db, reddit_username, keyword)
     add_keyword_to_user(db, reddit_username, keyword)
     # check if keyword is part of a cluster
     cluster = get_cluster(keyword, get_clusters(db))
@@ -168,7 +195,7 @@ def on_publicme(db, reddit_username, respond):
         respond (function): A function that can be called to respond to the user.
     """
     user = get_user_by_username(db, reddit_username)
-    if user == None:
+    if user is None:
         respond(
             f"User {reddit_username} not found, please subscribe to a keyword with with !sub command"
         )

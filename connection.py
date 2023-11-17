@@ -137,5 +137,4 @@ def set_user_is_public(db, username, is_public):
         {"$set": {"is_public": is_public}},
     )
 
-
 # client.close()

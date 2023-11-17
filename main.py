@@ -8,7 +8,7 @@ import bot_actions
 from command_parser import parse_command
 from connection import staging, prod
 
-### SET THIS TO PROD BEFORE DEPLOYING
+### TODO: SET THIS TO PROD BEFORE DEPLOYING
 db = staging
 load_dotenv()
 config = dotenv_values(".env")
@@ -20,6 +20,8 @@ reddit = praw.Reddit(
     username=os.environ["username"],
     password=os.environ["password"],
 )
+
+
 
 subreddit = reddit.subreddit("bot_playground")  # TODO: move to env file
 
@@ -93,6 +95,7 @@ def handle_command(message):
                 return
             # Remove keywords from a user's subscription list
             bot_actions.on_unsubscribe(db, author.name, args[0], respond)
+        # TODO: fix !list command - error message - can only join an iterable
         elif cmd == "!list":  # User asks for keywords they are subscribed to
             bot_actions.on_list_user_keywords(db, author.name, respond)
         elif cmd == "!publicme":  # Make users public on request
@@ -100,6 +103,7 @@ def handle_command(message):
         elif cmd == "!privateme":  # Make users private on request
             bot_actions.on_privateme(db, author.name, respond)
 
+        # TODO: figure out if we want to keep this
         # elif cmd == "!findusers":  # list users who are subscribed to a certain keyword
 
     except Exception as e:
