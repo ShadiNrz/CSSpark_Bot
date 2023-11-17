@@ -1,5 +1,3 @@
-from praw import reddit
-
 from bot_actions_helpers import get_or_create_user, is_user_subscribed_to_keyword
 from connection import (
     add_keyword_to_user,
@@ -34,7 +32,7 @@ def test_reddit_post(db, text, respond):
     )
 
 
-def on_reddit_post(db, submission):
+def on_reddit_post(db, submission, reddit):
     """
     Called when a new Reddit post is detected.
 
@@ -82,9 +80,14 @@ def on_reddit_post(db, submission):
         )
 
     for user in top_private_users:
-        reddit.redditor(user).message(
-            f"{user}, check out this post containing your keyword(s): {title}"
-        )
+        print(f"messaging {user}")
+        try:
+            reddit.redditor(user).message(
+                f"Keyword Mentioned",
+                f"{user}, check out this post containing your keyword(s): {title}",
+            )
+        except Exception as e:
+            print(f"Failed to message {user}: {e}")
 
     print(f"Replied to submission {submission.id}: {title}")
     print(f"Sent messages to private users in reply to {submission.id}: {title}")

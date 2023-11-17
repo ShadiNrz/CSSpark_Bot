@@ -13,6 +13,13 @@ db = staging
 load_dotenv()
 config = dotenv_values(".env")
 
+# reddit = praw.Reddit(
+#     client_id="zRFmLVVtIrtotSAiwLQU0Q",
+#     client_secret="KQQgQEj87V7t4u4Ob9FYTscq1BdL6w",
+#     user_agent="Kerbal_Bot",
+#     username="Kerbal_Bot",
+#     password="pVzNkPER9JmFYAf",
+# )
 reddit = praw.Reddit(
     client_id=os.environ["client_id"],
     client_secret=os.environ["client_secret"],
@@ -20,7 +27,6 @@ reddit = praw.Reddit(
     username=os.environ["username"],
     password=os.environ["password"],
 )
-
 
 
 subreddit = reddit.subreddit("bot_playground")  # TODO: move to env file
@@ -36,7 +42,7 @@ def comment_stream():
 
 def handle_submission(submission):
     try:
-        bot_actions.on_reddit_post(db, submission)
+        bot_actions.on_reddit_post(db, submission, reddit)
 
     except Exception as e:
         print(str(e))
