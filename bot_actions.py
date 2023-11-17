@@ -48,36 +48,43 @@ def on_reddit_post(db, submission):
     # Get all users from the database
     users = get_users(db, True)
 
-    publicUsers = []
-    privateUsers = []
+    public_users = []
+    private_users = []
 
     # sort users based on privacy status
     for user in users:
         if user.is_public:
-            publicUsers.append(user)
+            public_users.append(user)
         else:
-            privateUsers.append(user)
+            private_users.append(user)
 
-    public_filtered_users = get_user_keyword_counts(publicUsers, f"{title} {post_text}")
-    private_filtered_users = get_user_keyword_counts(privateUsers, f"{title} {post_text}")
+    public_filtered_users = get_user_keyword_counts(
+        public_users, f"{title} {post_text}"
+    )
+    private_filtered_users = get_user_keyword_counts(
+        private_users, f"{title} {post_text}"
+    )
 
     # get the top MAX_PINGS users (not sure if this works)
     # TODO: seperate public from private users
-    top_public_users = sorted(public_filtered_users, key=public_filtered_users.get, reverse=True)[:MAX_PINGS]
-    top_private_users = sorted(private_filtered_users, key=private_filtered_users.get, reverse=True)[:MAX_PINGS]
+    top_public_users = sorted(
+        public_filtered_users, key=public_filtered_users.get, reverse=True
+    )[:MAX_PINGS]
+    top_private_users = sorted(
+        private_filtered_users, key=private_filtered_users.get, reverse=True
+    )[:MAX_PINGS]
 
-    top_public_users_str = ", ".join(top_public_users)
+    top_public_users_str = ", ".join([f"u/{user}" for user in top_public_users])
 
     if len(top_public_users) != 0:
         submission.reply(
             f"{top_public_users_str} you are mentioned because your keywords were found in this post!"
         )
 
-    if len(top_private_users) != 0:
-        for user in top_private_users:
-            reddit.redditor(user.reddit_username).message(
-                f"{user.reddit_username}, check out this post containing your keyword(s): {title}"
-            )
+    for user in top_private_users:
+        reddit.redditor(user).message(
+            f"{user}, check out this post containing your keyword(s): {title}"
+        )
 
     print(f"Replied to submission {submission.id}: {title}")
     print(f"Sent messages to private users in reply to {submission.id}: {title}")
