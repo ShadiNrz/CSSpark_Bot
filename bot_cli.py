@@ -1,6 +1,7 @@
 from command_parser import is_missing_args, is_missing_command, parse_command
 from connection import get_users, staging
 from bot_actions import (
+    on_list_user_keywords,
     on_reddit_post,
     on_subscribe,
     on_unsubscribe,
@@ -52,15 +53,14 @@ def main():
         if cmd == "!exit":
             break
 
-        if cmd == "!list":
-            data = get_users(staging, aggregate=False)
-            for user in data:
-                print(user.reddit_username)
-                print(
-                    f"Public: {user.is_public}, Subscribed keywords: {user.subscribed_keywords}"
-                )
+            # data = get_users(staging, aggregate=False)
+            # for user in data:
+            #     print(user.reddit_username)
+            #     print(
+            #         f"Public: {user.is_public}, Subscribed keywords: {user.subscribed_keywords}"
+            #     )
 
-        if cmd == "!listexpansions":
+        elif cmd == "!listexpansions":
             data = get_users(staging, aggregate=True)
             for user in data:
                 print(user.reddit_username)
@@ -68,27 +68,29 @@ def main():
                     f"Public: {user.is_public}, expanded keywords: {user.expanded_subscriptions}"
                 )
 
-        if cmd == "!testpost":
+        elif cmd == "!testpost":
             text = input("Enter reddit post text ")
             test_reddit_post(staging, text, respond)
 
-        username = input("Enter username ")
-
-        if cmd == "!sub":
-            keyword = args[0]
-            on_subscribe(staging, username, keyword, respond)
-        elif cmd == "!unsub":
-            keyword = args[0]
-            on_unsubscribe(staging, username, keyword, respond)
-        elif cmd == "!unexpand":
-            keyword = args[0]
-            on_unexpand(staging, username, keyword, respond)
-        elif cmd == "!publicme":
-            on_publicme(staging, username, respond)
-        elif cmd == "!privateme":
-            on_privateme(staging, username, respond)
         else:
-            print("Invalid command")
+            username = input("Enter username ")
+            if cmd == "!list":
+                on_list_user_keywords(staging, username, respond)
+            if cmd == "!sub":
+                keyword = args[0]
+                on_subscribe(staging, username, keyword, respond)
+            elif cmd == "!unsub":
+                keyword = args[0]
+                on_unsubscribe(staging, username, keyword, respond)
+            elif cmd == "!unexpand":
+                keyword = args[0]
+                on_unexpand(staging, username, keyword, respond)
+            elif cmd == "!publicme":
+                on_publicme(staging, username, respond)
+            elif cmd == "!privateme":
+                on_privateme(staging, username, respond)
+            else:
+                print("Invalid command")
 
 
 if __name__ == "__main__":

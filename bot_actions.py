@@ -150,7 +150,10 @@ def on_list_user_keywords(db, reddit_username, respond):
             f"\ttopic_name: {topic['topic_name']}, is_expanded: {topic['is_expanded']}"
         )
         if topic["is_expanded"]:
-            keyword_list += f"expanded keywords: {', '.join(get_cluster(topic['topic_name'],clusters ))}"
+            if get_cluster(topic["topic_name"], clusters):
+                keyword_list += f", expanded keywords: {', '.join(get_cluster(topic['topic_name'], clusters ))}"
+            else:
+                keyword_list += f", no expanded keywords"
         keyword_list += "\n"
     respond(f"Subscribed keywords list for {reddit_username}: \n{keyword_list}")
 
