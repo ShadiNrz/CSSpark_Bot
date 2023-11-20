@@ -84,7 +84,8 @@ def on_reddit_post(db, submission, reddit):
         try:
             reddit.redditor(user).message(
                 f"Keyword Mentioned",
-                f"{user}, check out this post containing your keyword(s): {title}",
+                # TODO: add link to post
+                f"{title} mentions your keywords! {user}, check out this post containing your keyword(s): ",
             )
         except Exception as e:
             print(f"Failed to message {user}: {e}")
