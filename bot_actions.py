@@ -165,7 +165,7 @@ def on_unexpand(db, reddit_username, keyword, respond):
         return
 
     unexpand_keyword_for_user(db, reddit_username, keyword)
-    respond(f"Sucessfully unexpanded {keyword}!")
+    respond(f"Successfully unexpanded {keyword}!")
 
 
 def on_list_user_keywords(db, reddit_username, respond):
