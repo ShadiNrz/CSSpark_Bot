@@ -18,7 +18,7 @@ def is_user_subscribed_to_keyword(user, keyword):
     Check if the user is subscribed to a specific keyword.
 
     Parameters:
-        user (dict): The user object containing subscribed keywords.
+        user: The user object containing subscribed keywords.
         keyword (str): The keyword to check.
 
     Returns:
