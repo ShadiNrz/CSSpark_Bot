@@ -102,7 +102,9 @@ def handle_command(message):
             # Remove keywords from a user's subscription list
             bot_actions.on_unsubscribe(db, author.name, args[0], respond)
         # TODO: fix !list command - error message - can only join an iterable
-        elif cmd == "!list":  # User asks for keywords they are subscribed to
+        elif (
+            cmd == "!list" or cmd == "!listkeywords"
+        ):  # User asks for keywords they are subscribed to
             bot_actions.on_list_user_keywords(db, author.name, respond)
         elif cmd == "!publicme":  # Make users public on request
             bot_actions.on_publicme(db, author.name, respond)
