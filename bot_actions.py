@@ -16,6 +16,7 @@ MAX_PINGS = 7  # TODO: Add this to the database so that mods can configure it
 i_am_a_bot = "I am a bot and this action was performed automatically. Please see my wiki at https://bit.ly/CSSpark_Bot to see the full list of commands available."
 no_user_str = f"User not found, please subscribe to a keyword with with !sub command to join my userbase\n{i_am_a_bot}"
 
+
 def test_reddit_post(db, text, respond):
     """
     Tests getting the users to ping
@@ -84,8 +85,7 @@ def on_reddit_post(db, submission, reddit):
             post_url = submission.shortlink
             reddit.redditor(user).message(
                 f"Keyword Mentioned",
-                f"{post_url} ({title}) mentions your keyphrase\nGo check out this post and see what you think!\n{i_am_a_bot}
- ",
+                f"{post_url} ({title}) mentions your keyphrase\nGo check out this post and see what you think!\n{i_am_a_bot}",
             )
         except Exception as e:
             print(f"Failed to message {user}: {e}")
@@ -192,7 +192,9 @@ def on_list_user_keywords(db, reddit_username, respond):
             else:
                 keyword_list += f", no expanded keywords"
         keyword_list += "\n"
-    respond(f"Subscribed keywords list for {reddit_username}: \n{keyword_list}\n{i_am_a_bot}")
+    respond(
+        f"Subscribed keywords list for {reddit_username}: \n{keyword_list}\n{i_am_a_bot}"
+    )
 
 
 def on_publicme(db, reddit_username, respond):
