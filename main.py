@@ -13,26 +13,23 @@ db = staging
 load_dotenv()
 config = dotenv_values(".env")
 
-# reddit = praw.Reddit(
-#     client_id="zRFmLVVtIrtotSAiwLQU0Q",
-#     client_secret="KQQgQEj87V7t4u4Ob9FYTscq1BdL6w",
-#     user_agent="Kerbal_Bot",
-#     username="Kerbal_Bot",
-#     password="pVzNkPER9JmFYAf",
-# )
 reddit = praw.Reddit(
-    client_id=os.environ["client_id"],
-    client_secret=os.environ["client_secret"],
-    user_agent="CSSpark_Bot",
-    username=os.environ["username"],
-    password=os.environ["password"],
+    client_id="zRFmLVVtIrtotSAiwLQU0Q",
+    client_secret="KQQgQEj87V7t4u4Ob9FYTscq1BdL6w",
+    user_agent="Kerbal_Bot",
+    username="Kerbal_Bot",
+    password="pVzNkPER9JmFYAf",
 )
+# reddit = praw.Reddit(
+#     client_id=os.environ["client_id"],
+#     client_secret=os.environ["client_secret"],
+#     user_agent="CSSpark_Bot",
+#     username=os.environ["username"],
+#     password=os.environ["password"],
+# )
 
 
 subreddit = reddit.subreddit("bot_playground")  # TODO: move to env file
-
-# Keyword to look for in comments
-comment_keyword = "!hello"
 
 
 def comment_stream():
@@ -79,8 +76,8 @@ def handle_command(message):
         ##############################################################################
 
         def respond(text):  # embedded function - sends a string reply to bot command
+            print(f"BOT_RESPONSE: {text}")
             message.reply(text)
-            return
 
         ##############################################################################
         command = parse_command(message.body)
