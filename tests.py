@@ -38,13 +38,13 @@ class TestMongoDBFunctions(unittest.TestCase):
         self.assertEqual(len(users), 0)
 
         # add some users
-        rebuild_sample_users_db(self.db)
+        rebuild_sample_users_db()
         users = get_users(self.db, aggregate=False)
         self.assertIsInstance(users, list)
         self.assertEqual(len(users), 2)
 
     def test_get_user_by_username(self):
-        rebuild_sample_users_db(self.db)
+        rebuild_sample_users_db()
         user = get_user_by_username(self.db, "123madskillz")
         self.assertIsNotNone(user)  # Ensure that a user is returned
         self.assertEqual(

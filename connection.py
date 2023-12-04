@@ -25,7 +25,7 @@ prod = client["prod-reddit-bot"]
 staging = client["staging-reddit-bot"]
 
 
-def rebuild_sample_users_db(db):
+def rebuild_sample_users_db():
     staging.users.delete_many({})
     staging.users.insert_many(
         [
@@ -56,15 +56,76 @@ def rebuild_keyword_expansion_db(db):
         [
             {
                 "word_cluster": [
-                    "ai",
-                    "ml",
-                    "artificial intelligence",
-                    "machine learning",
-                    "deep learning",
+                    "Machine Learning",
+                    "ML",
+                    "Supervised Learning",
+                    "Unsupervised Learning",
+                    "Deep Learning",
+                    "DL",
+                    "Neural Networks",
+                    "NN",
+                    "Natural Language Processing",
+                    "NLP",
+                    "Predictive Analytics",
+                    "Feature Engineering",
+                    "Reinforcement Learning",
+                    "RL",
+                    "Algorithm Development",
                 ],
             },
-            {"word_cluster": ["gaming", "video games"]},
-            {"word_cluster": ["robotics", "robots", "hri"]},
+            {
+                "word_cluster": [
+                    "Human-Centered Computing",
+                    "HCC",
+                    "Social Computing",
+                    "SC",
+                    "Ethical Computing",
+                    "Human-Computer Interaction",
+                    "HCI",
+                ]
+            },
+            {
+                "word_cluster": [
+                    "Online Community",
+                    "Virtual Communities",
+                    "Online communities",
+                    "Sense of virtual communities",
+                    "SOVC",
+                    "Virtual Collaboration",
+                ]
+            },
+            {
+                "word_cluster": [
+                    "Social media",
+                    "User Engagement Strategies",
+                    "Reddit",
+                    "Twitter",
+                    "Facebook",
+                    "Instagram",
+                    "TikTok",
+                    "LinkedIn",
+                    "Youtube",
+                ]
+            },
+            {
+                "word_cluster": [
+                    "Social Support",
+                    "Spiritual Support",
+                    "Emotional Support",
+                    "Informational Support",
+                    "Instrumental Support",
+                    "Esteem Support",
+                    "Network Support",
+                    "Peer Support",
+                    "Mental Health Services",
+                    "Counseling and Therapy",
+                    "Social Welfare",
+                    "Crisis Intervention",
+                    "Support Networks",
+                    "Family Services",
+                    "Self-Help Strategies",
+                ]
+            },
         ]
     )
 
@@ -136,5 +197,6 @@ def set_user_is_public(db, username, is_public):
         {"reddit_username": username},
         {"$set": {"is_public": is_public}},
     )
+
 
 # client.close()
