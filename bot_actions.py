@@ -2,10 +2,12 @@ from bot_actions_helpers import get_or_create_user, is_user_subscribed_to_keywor
 from connection import (
     add_keyword_to_user,
     get_clusters,
+    get_ping_limit,
     get_user_by_username,
     get_users,
     create_user,
     remove_keyword_from_user,
+    set_ping_limit,
     set_user_is_public,
     unexpand_keyword_for_user,
 )
@@ -31,8 +33,33 @@ def test_reddit_post(db, text, respond):
         # no response if no users are found
         return
     respond(
-        f"Beep boop, I spy a keyphrase of interest to r/CompSocial community members: {top_users_str}\n\nPlease join the converstation and tell us what you think!\n\n{i_am_a_bot}"
+        f"Beep boop, I spy a keyphrase of interest to r/CompSocial community members: {top_users_str}\n\nPlease join the converstation and tell us what you think!\n\n{i_am_a_bot}\n\nFeel free to contact the mod team if you notice any issues with my behavior."
     )
+
+
+def on_ping_limit(db, limit, respond):
+    """
+    Called when a user wants to change the ping limit
+
+    Parameters:
+        db (Database): The database object.
+        limit(int): The new ping limit
+        respond (function): A function that can be called to respond to the user.
+    """
+    set_ping_limit(db, limit)
+    respond(f"Successfully set ping limit to {limit}\n\n{i_am_a_bot}")
+
+
+def on_get_ping_limit(db, respond):
+    """
+    Called when a user wants to get the ping limit
+
+    Parameters:
+        db (Database): The database object.
+        respond (function): A function that can be called to respond to the user.
+    """
+    limit = get_ping_limit(db)
+    respond(f"The current ping limit is {limit}\n\n{i_am_a_bot}")
 
 
 def on_reddit_post(db, submission, reddit):
@@ -109,13 +136,17 @@ def on_subscribe(db, reddit_username, keyword, respond):
         respond (function): A function that can be called to respond to the user.
     """
     print(f"User {reddit_username} subscribed to keyword {keyword}.")
-    get_or_create_user(db, reddit_username, keyword)
+    user = get_or_create_user(db, reddit_username)
+    if is_user_subscribed_to_keyword(user, keyword):
+        respond(f"You are already subscribed to {keyword}.\n\n{i_am_a_bot}")
+        return
     add_keyword_to_user(db, reddit_username, keyword)
     # check if keyword is part of a cluster
-    cluster = get_cluster(keyword, get_clusters(db))
+    db_clusters = get_clusters(db)
+    cluster = get_cluster(keyword, db_clusters)
     if cluster:
         respond(
-            f"Successfully subscribed ${reddit_username} to {keyword}! That keyword is part of a cluster with the following keywords: {' ,'.join(cluster)}, if you would like to only subscribe to the keyword you entered and not the entire cluster, please respond with \n\n!unexpand {keyword}\n{i_am_a_bot}"
+            f"Successfully subscribed to {keyword}! That keyword is part of a cluster with the following keywords: \n\n\t{', '.join(cluster)}\n\n if you would like to only subscribe to the keyword you entered and not the entire cluster, please respond with \n\n!unexpand {keyword}\n\n{i_am_a_bot}"
         )
     else:
         respond(f"Successfully subscribed to {keyword}!\n\n{i_am_a_bot}")
@@ -132,14 +163,15 @@ def on_unsubscribe(db, reddit_username, keyword, respond):
         keyword (str): The keyword that the user unsubscribed to.
         respond (function): A function that can be called to respond to the user.
     """
-    print(f"User {reddit_username} wants to unsubscribe to {keyword}.")
     user = get_user_by_username(db, reddit_username)
     if not user:
         respond(no_user_str)
 
     # check if the user has the keyword
     if not is_user_subscribed_to_keyword(user, keyword):
-        respond(no_user_str)
+        respond(
+            f"You are not subscribed to {keyword},respond with !listkeywords to see your subscriptions.\n\n{i_am_a_bot}"
+        )
         return
     remove_keyword_from_user(db, reddit_username, keyword)
     respond(f"Successfully unsubscribed to {keyword}!\n\n{i_am_a_bot}")

@@ -104,6 +104,24 @@ def handle_command(message):
             bot_actions.on_publicme(db, author.name, respond)
         elif cmd == "!privateme":  # Make users private on request
             bot_actions.on_privateme(db, author.name, respond)
+        elif cmd == "!get-ping-limit":
+            bot_actions.on_get_ping_limit(db, respond)
+        elif cmd == "!ping-limit":
+            if len(args) == 0:
+                respond(
+                    "No limit specified, you can set a limit using !ping-limit integer"
+                )
+                return
+            if not args[0].isdigit():
+                respond("Limit must be an integer")
+                return
+            limit = int(args[0])
+            if author in subreddit.moderator():
+                bot_actions.on_ping_limit(db, limit, respond)
+            else:
+                respond(
+                    f"you must be a moderator to set the ping limit, the current moderators are: {', '.join([str(moderator) for moderator in subreddit.moderator()])}"
+                )
 
         # TODO: figure out if we want to keep this
         # elif cmd == "!findusers":  # list users who are subscribed to a certain keyword

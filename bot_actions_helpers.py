@@ -1,15 +1,12 @@
 from connection import add_keyword_to_user, create_user, get_user_by_username
 
 
-def get_or_create_user(db, reddit_username, keyword):
+def get_or_create_user(db, reddit_username):
     user = get_user_by_username(db, reddit_username)
     if user is None:
-        create_user(
-            db, reddit_username, True, [{"topic_name": keyword, "is_expanded": True}]
-        )
+        create_user(db, reddit_username, True)
         user = get_user_by_username(db, reddit_username)
         return user
-    add_keyword_to_user(db, reddit_username, keyword)
     return user
 
 

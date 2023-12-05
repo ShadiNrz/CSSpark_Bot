@@ -3,7 +3,7 @@ import os
 from pymongo import MongoClient
 
 from dotenv import load_dotenv, dotenv_values
-from db_types import ExtendedUser, Topic, User
+from db_types import Cluster, ExtendedUser, Topic, User
 from keyword_pipeline import keyword_pipeline
 
 load_dotenv()
@@ -25,7 +25,14 @@ prod = client["prod-reddit-bot"]
 staging = client["staging-reddit-bot"]
 
 
+def rebuild_admin_settings_db(db):
+    print("REBUILDING ADMIN SETTINGS DB")
+    db.admin_settings.delete_many({})
+    db.admin_settings.insert_one({"ping_limit": 7})
+
+
 def rebuild_sample_users_db():
+    print("REBUILDING USERS DB")
     staging.users.delete_many({})
     staging.users.insert_many(
         [
@@ -50,80 +57,80 @@ def rebuild_sample_users_db():
 
 
 def rebuild_keyword_expansion_db(db):
+    print("REBUILDING KEYWORD EXPANSION DB")
     # delete and rebuild the keyword expansion list to keep it up to date
     db.keyword_expansion.delete_many({})
     db.keyword_expansion.insert_many(
         [
             {
                 "word_cluster": [
-                    "Machine Learning",
-                    "ML",
-                    "Supervised Learning",
-                    "Unsupervised Learning",
-                    "Deep Learning",
-                    "DL",
-                    "Neural Networks",
-                    "NN",
-                    "Natural Language Processing",
-                    "NLP",
-                    "Predictive Analytics",
-                    "Feature Engineering",
-                    "Reinforcement Learning",
-                    "RL",
-                    "Algorithm Development",
+                    "machine learning",
+                    "artificial intelligence",
+                    "ai",
+                    "ml",
+                    "supervised learning",
+                    "unsupervised learning",
+                    "deep learning",
+                    "neural networks",
+                    "natural language processing",
+                    "nlp",
+                    "predictive analytics",
+                    "feature engineering",
+                    "reinforcement learning",
+                    "algorithm development",
                 ],
             },
             {
                 "word_cluster": [
-                    "Human-Centered Computing",
-                    "HCC",
-                    "Social Computing",
-                    "SC",
-                    "Ethical Computing",
-                    "Human-Computer Interaction",
-                    "HCI",
+                    "human-centered computing",
+                    "hcc",
+                    "social computing",
+                    "sc",
+                    "ethical computing",
+                    "human-computer interaction",
+                    "hci",
                 ]
             },
             {
                 "word_cluster": [
-                    "Online Community",
-                    "Virtual Communities",
-                    "Online communities",
-                    "Sense of virtual communities",
-                    "SOVC",
-                    "Virtual Collaboration",
+                    "online community",
+                    "virtual communities",
+                    "online communities",
+                    "sense of virtual communities",
+                    "sovc",
+                    "virtual collaboration",
                 ]
             },
             {
                 "word_cluster": [
-                    "Social media",
-                    "User Engagement Strategies",
-                    "Reddit",
-                    "Twitter",
-                    "Facebook",
-                    "Instagram",
-                    "TikTok",
-                    "LinkedIn",
-                    "Youtube",
+                    "social media",
+                    "user engagement strategies",
+                    "reddit",
+                    "twitter",
+                    "facebook",
+                    "instagram",
+                    "tiktok",
+                    "linkedin",
+                    "youtube",
                 ]
             },
             {
                 "word_cluster": [
-                    "Social Support",
-                    "Spiritual Support",
-                    "Emotional Support",
-                    "Informational Support",
-                    "Instrumental Support",
-                    "Esteem Support",
-                    "Network Support",
-                    "Peer Support",
-                    "Mental Health Services",
-                    "Counseling and Therapy",
-                    "Social Welfare",
-                    "Crisis Intervention",
-                    "Support Networks",
-                    "Family Services",
-                    "Self-Help Strategies",
+                    "social support",
+                    "spiritual support",
+                    "emotional support",
+                    "informational support",
+                    "instrumental support",
+                    "esteem support",
+                    "network support",
+                    "peer support",
+                    "mental health services",
+                    "counseling and therapy",
+                    "social welfare",
+                    "crisis intervention",
+                    "support networks",
+                    "family services",
+                    "self-help strategies",
                 ]
             },
         ]
@@ -131,7 +138,20 @@ def rebuild_keyword_expansion_db(db):
 
 
 def get_clusters(db):
-    return db.keyword_expansion.find()
+    db_clusters = db.keyword_expansion.find()
+    clusters = [Cluster(**cluster_data) for cluster_data in db_clusters]
+    return clusters
+
+
+def get_ping_limit(db):
+    return db.admin_settings.find_one()["ping_limit"]
+
+
+def set_ping_limit(db, ping_limit):
+    db.admin_settings.update_one(
+        {},
+        {"$set": {"ping_limit": ping_limit}},
+    )
 
 
 def get_users(db, aggregate: bool):

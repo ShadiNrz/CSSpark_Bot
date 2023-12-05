@@ -1,7 +1,9 @@
 from command_parser import is_missing_args, is_missing_command, parse_command
 from connection import get_users, staging
 from bot_actions import (
+    on_get_ping_limit,
     on_list_user_keywords,
+    on_ping_limit,
     on_reddit_post,
     on_subscribe,
     on_unsubscribe,
@@ -17,6 +19,8 @@ command_list = {
     "!unexpand": 1,
     "!publicme": 0,
     "!privateme": 0,
+    "!ping-limit": 1,
+    "!get-ping-limit": 0,
     "!list": 0,
     "!listexpansions": 0,
     "!testpost": 0,
@@ -67,7 +71,11 @@ def main():
                 print(
                     f"Public: {user.is_public}, expanded keywords: {user.expanded_subscriptions}"
                 )
-
+        elif cmd == "!ping-limit":
+            limit = int(args[0])
+            on_ping_limit(staging, limit, respond)
+        elif cmd == "!get-ping-limit":
+            on_get_ping_limit(staging, respond)
         elif cmd == "!testpost":
             text = input("Enter reddit post text ")
             test_reddit_post(staging, text, respond)
@@ -76,7 +84,7 @@ def main():
             username = input("Enter username ")
             if cmd == "!list":
                 on_list_user_keywords(staging, username, respond)
-            if cmd == "!sub":
+            elif cmd == "!sub":
                 keyword = args[0]
                 on_subscribe(staging, username, keyword, respond)
             elif cmd == "!unsub":

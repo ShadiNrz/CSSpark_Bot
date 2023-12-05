@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Dict, List
-from db_types import Topic, User, ExpandedSubscriptions
+from db_types import Cluster, Topic, User, ExpandedSubscriptions
+import re
 
 
 def get_user_keyword_counts(users: List[User], post_text: str) -> Dict[str, int]:
@@ -24,6 +25,11 @@ def get_user_keyword_counts(users: List[User], post_text: str) -> Dict[str, int]
     return user_keyword_counts
 
 
+def is_keyword_present(text, keyword):
+    pattern = r"\b" + re.escape(keyword) + r"\b"
+    return re.search(pattern, text, re.IGNORECASE) is not None
+
+
 def count_subscribed_keywords(
     expanded_subscriptions: ExpandedSubscriptions, post_text: str
 ) -> int:
@@ -37,26 +43,25 @@ def count_subscribed_keywords(
     Returns:
         int: The count of keyword arrays where at least one keyword is found in the post text.
     """
-    # TODO: TEST ME
     matched_count = 0
     for keyword_array in expanded_subscriptions:
-        if any(keyword.lower() in post_text.lower() for keyword in keyword_array):
+        if any(is_keyword_present(post_text, keyword) for keyword in keyword_array):
             matched_count += 1
     return matched_count
 
 
-def get_cluster(keyword: str, clusters: List[List[str]]) -> bool:
+def get_cluster(keyword: str, clusters: List[Cluster]) -> bool:
     """
     Returns the cluster that contains the given keyword.
 
     Parameters:
         keyword (str): The keyword to find.
-        clusters (List[List[str]]): A list of clusters, where each cluster is a list of keywords.
+        clusters (List[Cluster]): A list of clusters, where each cluster is a list of keywords.
 
     Returns:
         List[str]: The cluster that contains the given keyword.
     """
     for cluster in clusters:
-        if keyword in cluster:
-            return cluster
+        if keyword in cluster.word_cluster:
+            return cluster.word_cluster
     return None

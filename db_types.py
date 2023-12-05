@@ -27,5 +27,7 @@ class ExtendedUser:
     expanded_subscriptions: ExpandedSubscriptions
 
 
+@dataclass
 class Cluster:
+    _id: str
     word_cluster: List[str]
