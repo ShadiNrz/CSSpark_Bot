@@ -122,7 +122,15 @@ def handle_command(message):
                 respond(
                     f"you must be a moderator to set the ping limit, the current moderators are: {', '.join([str(moderator) for moderator in subreddit.moderator()])}"
                 )
-
+        elif cmd == "!kill-switch":
+            # if the user is a moderator kill the whole program
+            if author in subreddit.moderator():
+                respond("goodbye :(")
+                exit()
+            else:
+                respond(
+                    f"you must be a moderator to kill the bot, the current moderators are: {', '.join([str(moderator) for moderator in subreddit.moderator()])}"
+                )
         # TODO: figure out if we want to keep this
         # elif cmd == "!findusers":  # list users who are subscribed to a certain keyword
 
