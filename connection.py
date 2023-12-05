@@ -77,18 +77,81 @@ def rebuild_keyword_expansion_db(db):
             {"word_cluster": ["NLP", "Natural Language Processing", "Linguistics"]},
             {
                 "word_cluster": [
-                    [
                         "DL",
                         "Deep Learning",
                         "Neural Networks",
                         "NN",
                         "Large Language Model",
-                    ]
                 ]
             },
             {"word_cluster": ["SNA", "Social Network Analysis", "Social Media"]},
             {"word_cluster": ["Moderation", "Mods", "Governance", "Rules", "Norms"]},
-            {"word_cluster": []},
+            {
+                "word_cluster": [
+                    "Online Communities",
+                    "Online Community",
+                    "Virtual Community",
+                    "Virtual Communities",
+                    "Sense of Virtual Communities",
+                    "SOVC"
+                ]
+            },
+            {
+                "word_cluster": [
+                    "HCC",
+                    "Human-Centered Computing",
+                    "Human Centered Computing",
+                    "HCC",
+                    "Human-Computer Interaction",
+                    "Human Computer Interaction",
+                    "HCI",
+                    "Social Computing"
+                ]
+            },
+            {
+                "word_cluster": [
+                    "Ethics",
+                    "Ethical computing",
+                    "Computing Ethics",
+                    "Computer Science Ethics",
+                ]
+            },
+            {
+                "word_cluster": [
+                    "Social Support",
+                    "Spiritual Support",
+                    "Emotional Support",
+                    "Informational Support",
+                    "Esteem Support",
+                    "Network Support",
+                    "Instrumental Support",
+                    "Tangible Support",
+                    "Peer Support",
+                    "Support Network",
+                    "Support Networks"
+                ]
+            },
+            {
+                "word_cluster": [
+                    "Mental Health",
+                    "Mental Health Support",
+                    "Mental Health Services",
+                    "Counseling",
+                    "Crisis Intervention",
+                    "Self-Help",
+                    "Therapy",
+                    "Digital Therapy",
+                    "Teletherapy",
+                    "Online Therapy"
+                ]
+            },
+            {
+                "word_cluster": [
+                    "HRI",
+                    "Human Robot Interaction",
+                    "Human-Robot Interaction"
+                ]
+            }
         ]
     )
 
