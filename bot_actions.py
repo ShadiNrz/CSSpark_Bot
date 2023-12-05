@@ -62,6 +62,25 @@ def on_get_ping_limit(db, respond):
     respond(f"The current ping limit is {limit}\n\n{i_am_a_bot}")
 
 
+def on_remove(db, reddit_username, respond):
+    """
+    Called when a user wants to be removed from the database
+
+    Parameters:
+        db (Database): The database object.
+        reddit_username: The username of the user
+        respond (function): A function that can be called to respond to the user.
+    """
+    user = get_user_by_username(db, reddit_username)
+    if user == None:
+        respond(no_user_str)
+        return
+    db.users.delete_one({"reddit_username": reddit_username})
+    respond(
+        f"User {reddit_username} has been removed from the database\n\n{i_am_a_bot}"
+    )
+
+
 def on_reddit_post(db, submission, reddit):
     """
     Called when a new Reddit post is detected.

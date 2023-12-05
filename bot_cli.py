@@ -5,6 +5,7 @@ from bot_actions import (
     on_list_user_keywords,
     on_ping_limit,
     on_reddit_post,
+    on_remove,
     on_subscribe,
     on_unsubscribe,
     on_unexpand,
@@ -26,6 +27,7 @@ command_list = {
     "!testpost": 0,
     "!listusers": 0,
     "!exit": 0,
+    "!remove": 0,
 }
 
 
@@ -97,6 +99,8 @@ def main():
                 on_publicme(staging, username, respond)
             elif cmd == "!privateme":
                 on_privateme(staging, username, respond)
+            elif cmd == "!remove":
+                on_remove(staging, username, respond)
             else:
                 print("Invalid command")
 

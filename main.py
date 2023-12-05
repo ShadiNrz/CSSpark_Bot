@@ -104,7 +104,13 @@ def handle_command(message):
                 return
             # Remove keywords from a user's subscription list
             bot_actions.on_unsubscribe(db, author.name, args[0], respond)
-        # TODO: fix !list command - error message - can only join an iterable
+        elif cmd == "!unexpand":
+            if len(args) == 0:
+                respond(
+                    f"No keyword specified, you can unexpand a keyword using !unexpand keyword"
+                )
+                return
+            bot_actions.on_unexpand(db, author.name, args[0], respond)
         elif (
             cmd == "!list" or cmd == "!listkeywords"
         ):  # User asks for keywords they are subscribed to
@@ -140,6 +146,8 @@ def handle_command(message):
                 respond(
                     f"you must be a moderator to kill the bot, the current moderators are: {', '.join([str(moderator) for moderator in subreddit.moderator()])}"
                 )
+        elif cmd == "!remove":
+            bot_actions.on_remove(db, author.name, respond)
         # TODO: figure out if we want to keep this
         # elif cmd == "!findusers":  # list users who are subscribed to a certain keyword
 
