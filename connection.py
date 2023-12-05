@@ -163,7 +163,7 @@ def get_clusters(db):
 
 
 def get_ping_limit(db):
-    return db.admin_settings.find_one()["ping_limit"]
+    return int(db.admin_settings.find_one()["ping_limit"])
 
 
 def set_ping_limit(db, ping_limit):

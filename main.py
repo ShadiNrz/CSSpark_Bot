@@ -13,7 +13,6 @@ from connection import staging, prod
 db = staging
 load_dotenv()
 config = dotenv_values(".env")
-
 killswitch = False
 
 # reddit = praw.Reddit(

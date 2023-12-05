@@ -13,8 +13,6 @@ from connection import (
 )
 from util import get_cluster, get_user_keyword_counts
 
-MAX_PINGS = 7  # TODO: Add this to the database so that mods can configure it
-
 i_am_a_bot = """I am a bot and this action was performed automatically. Please check my profile to see the full list of commands available."""
 no_user_str = f"User not found, please subscribe to a keyword with with !sub command to join my userbase\n\n{i_am_a_bot}"
 
@@ -25,6 +23,7 @@ def test_reddit_post(db, text, respond):
     """
     # Get all users from the database
     users = get_users(db, True)
+    MAX_PINGS = get_ping_limit(db)
     filtered_users = get_user_keyword_counts(users, text)
     print(filtered_users)
     top_users = sorted(filtered_users, key=filtered_users.get, reverse=True)[:MAX_PINGS]
