@@ -88,6 +88,7 @@ def on_reddit_post(db, submission, reddit):
         db (Database): The database object.
         submission (Submission): The Reddit post object.
     """
+    MAX_PINGS = get_ping_limit(db)
     title = submission.title.upper()
     post_text = submission.selftext.upper()
 
@@ -121,7 +122,7 @@ def on_reddit_post(db, submission, reddit):
 
     if len(top_public_users) != 0:
         submission.reply(
-            f"Beep boop, I spy a keyphrase of interest to r/CompSocial community members: {top_public_users_str}\n\nPlease join the converstation and tell us what you think!\n{i_am_a_bot}"
+            f"Beep boop, I spy a keyphrase of interest to r/CompSocial community members: {top_public_users_str}\n\nPlease join the converstation and tell us what you think!\n\n{i_am_a_bot}"
         )
 
     for user in top_private_users:
