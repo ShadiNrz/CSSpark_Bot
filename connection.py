@@ -64,75 +64,31 @@ def rebuild_keyword_expansion_db(db):
         [
             {
                 "word_cluster": [
-                    "machine learning",
-                    "artificial intelligence",
-                    "ai",
-                    "ml",
-                    "supervised learning",
-                    "unsupervised learning",
-                    "deep learning",
-                    "neural networks",
-                    "natural language processing",
-                    "nlp",
-                    "predictive analytics",
-                    "feature engineering",
-                    "reinforcement learning",
-                    "algorithm development",
+                    "AI/ML",
+                    "AI",
+                    "Artificial Intelligence",
+                    "ML",
+                    "Machine Learning",
+                    "Unsupervised Learning",
+                    "Supervised Learning",
                 ],
             },
+            {"word_cluster": ["RL", "Reinforcement Learning"]},
+            {"word_cluster": ["NLP", "Natural Language Processing", "Linguistics"]},
             {
                 "word_cluster": [
-                    "human-centered computing",
-                    "hcc",
-                    "social computing",
-                    "sc",
-                    "ethical computing",
-                    "human-computer interaction",
-                    "hci",
+                    [
+                        "DL",
+                        "Deep Learning",
+                        "Neural Networks",
+                        "NN",
+                        "Large Language Model",
+                    ]
                 ]
             },
-            {
-                "word_cluster": [
-                    "online community",
-                    "virtual communities",
-                    "online communities",
-                    "sense of virtual communities",
-                    "sovc",
-                    "virtual collaboration",
-                ]
-            },
-            {
-                "word_cluster": [
-                    "social media",
-                    "user engagement strategies",
-                    "reddit",
-                    "twitter",
-                    "facebook",
-                    "instagram",
-                    "tiktok",
-                    "linkedin",
-                    "youtube",
-                ]
-            },
-            {
-                "word_cluster": [
-                    "social support",
-                    "spiritual support",
-                    "emotional support",
-                    "informational support",
-                    "instrumental support",
-                    "esteem support",
-                    "network support",
-                    "peer support",
-                    "mental health services",
-                    "counseling and therapy",
-                    "social welfare",
-                    "crisis intervention",
-                    "support networks",
-                    "family services",
-                    "self-help strategies",
-                ]
-            },
+            {"word_cluster": ["SNA", "Social Network Analysis", "Social Media"]},
+            {"word_cluster": ["Moderation", "Mods", "Governance", "Rules", "Norms"]},
+            {"word_cluster": []},
         ]
     )
 

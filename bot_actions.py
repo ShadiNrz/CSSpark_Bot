@@ -135,6 +135,7 @@ def on_subscribe(db, reddit_username, keyword, respond):
         keyword (str): The keyword that the user subscribed to.
         respond (function): A function that can be called to respond to the user.
     """
+    keyword = keyword.lower()
     print(f"User {reddit_username} subscribed to keyword {keyword}.")
     user = get_or_create_user(db, reddit_username)
     if is_user_subscribed_to_keyword(user, keyword):
@@ -163,6 +164,7 @@ def on_unsubscribe(db, reddit_username, keyword, respond):
         keyword (str): The keyword that the user unsubscribed to.
         respond (function): A function that can be called to respond to the user.
     """
+    keyword = keyword.lower()
     user = get_user_by_username(db, reddit_username)
     if not user:
         respond(no_user_str)
@@ -187,6 +189,7 @@ def on_unexpand(db, reddit_username, keyword, respond):
         keyword (str): The keyword that the user unsubscribed to.
         respond (function): A function that can be called to respond to the user.
     """
+    keyword = keyword.lower()
     user = get_user_by_username(db, reddit_username)
     if not user:
         respond(no_user_str)
