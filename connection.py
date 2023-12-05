@@ -77,11 +77,11 @@ def rebuild_keyword_expansion_db(db):
             {"word_cluster": ["NLP", "Natural Language Processing", "Linguistics"]},
             {
                 "word_cluster": [
-                        "DL",
-                        "Deep Learning",
-                        "Neural Networks",
-                        "NN",
-                        "Large Language Model",
+                    "DL",
+                    "Deep Learning",
+                    "Neural Networks",
+                    "NN",
+                    "Large Language Model",
                 ]
             },
             {"word_cluster": ["SNA", "Social Network Analysis", "Social Media"]},
@@ -93,7 +93,7 @@ def rebuild_keyword_expansion_db(db):
                     "Virtual Community",
                     "Virtual Communities",
                     "Sense of Virtual Communities",
-                    "SOVC"
+                    "SOVC",
                 ]
             },
             {
@@ -105,7 +105,7 @@ def rebuild_keyword_expansion_db(db):
                     "Human-Computer Interaction",
                     "Human Computer Interaction",
                     "HCI",
-                    "Social Computing"
+                    "Social Computing",
                 ]
             },
             {
@@ -128,7 +128,7 @@ def rebuild_keyword_expansion_db(db):
                     "Tangible Support",
                     "Peer Support",
                     "Support Network",
-                    "Support Networks"
+                    "Support Networks",
                 ]
             },
             {
@@ -142,16 +142,16 @@ def rebuild_keyword_expansion_db(db):
                     "Therapy",
                     "Digital Therapy",
                     "Teletherapy",
-                    "Online Therapy"
+                    "Online Therapy",
                 ]
             },
             {
                 "word_cluster": [
                     "HRI",
                     "Human Robot Interaction",
-                    "Human-Robot Interaction"
+                    "Human-Robot Interaction",
                 ]
-            }
+            },
         ]
     )
 
