@@ -14,6 +14,8 @@ db = staging
 load_dotenv()
 config = dotenv_values(".env")
 
+killswitch = False
+
 # reddit = praw.Reddit(
 #     client_id="zRFmLVVtIrtotSAiwLQU0Q",
 #     client_secret="KQQgQEj87V7t4u4Ob9FYTscq1BdL6w",
@@ -39,6 +41,9 @@ def comment_stream():
 
 
 def handle_submission(submission):
+    global killswitch
+    if killswitch:
+        quit()
     try:
         bot_actions.on_reddit_post(db, submission, reddit)
 
@@ -66,6 +71,9 @@ def message_check(message):
 
 # Handle DMs or Comments
 def handle_command(message):
+    global killswitch
+    if killswitch:
+        quit()
     try:
         author = message.author  # Reddit "user" object - author of sent message
 
@@ -127,7 +135,7 @@ def handle_command(message):
             # if the user is a moderator kill the whole program
             if author in subreddit.moderator():
                 respond("goodbye :(")
-                sys.exit()
+                killswitch = True
             else:
                 respond(
                     f"you must be a moderator to kill the bot, the current moderators are: {', '.join([str(moderator) for moderator in subreddit.moderator()])}"
