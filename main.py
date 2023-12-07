@@ -10,7 +10,6 @@ from command_parser import parse_command
 from connection import staging, prod
 
 ### TODO: SET THIS TO PROD BEFORE DEPLOYING
-db = staging
 load_dotenv()
 config = dotenv_values(".env")
 killswitch = False
@@ -31,11 +30,20 @@ reddit = praw.Reddit(
 )
 
 
-subreddit = reddit.subreddit("bot_playground")  # TODO: move to env file
+subreddit = reddit.subreddit(os.environ["subreddit"])  # TODO: move to env file
+print(f"Connected to {os.environ['subreddit']}")
+if os.environ["production"] == "true":
+    db = prod
+    print("RUNNING ON PRODUCTION DATABASE")
+else:
+    db = staging
+    print("running on staging (not prod) database")
 
 
 def comment_stream():
     for comment in subreddit.stream.comments(skip_existing=True):
+        if killswitch:
+            break
         handle_command(comment)
 
 
@@ -43,6 +51,7 @@ def handle_submission(submission):
     global killswitch
     if killswitch:
         quit()
+        return
     try:
         bot_actions.on_reddit_post(db, submission, reddit)
 
@@ -53,6 +62,8 @@ def handle_submission(submission):
 
 def submission_stream():
     for submission in subreddit.stream.submissions(skip_existing=True):
+        if killswitch:
+            break
         handle_submission(submission)
 
 
@@ -73,6 +84,7 @@ def handle_command(message):
     global killswitch
     if killswitch:
         quit()
+        return
     try:
         author = message.author  # Reddit "user" object - author of sent message
 
@@ -158,6 +170,8 @@ def handle_command(message):
 # Main function for DM stream
 def dm_stream():
     for message in reddit.inbox.stream(skip_existing=True):
+        if killswitch:
+            break
         handle_command(message)
 
 
@@ -170,3 +184,7 @@ if __name__ == "__main__":
     comment_thread.start()
     submission_thread.start()
     dm_thread.start()
+
+    comment_thread.join()
+    submission_thread.join()
+    dm_thread.join()
