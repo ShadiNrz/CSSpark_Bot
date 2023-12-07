@@ -166,7 +166,7 @@ def on_subscribe(db, reddit_username, keyword, respond):
     cluster = get_cluster(keyword, db_clusters)
     if cluster:
         respond(
-            f"Successfully subscribed to {keyword}! That keyword is part of a cluster with the following keywords: \n\n\t{', '.join(cluster)}\n\n if you would like to only subscribe to the keyword you entered and not the entire cluster, please respond with \n\n!unexpand {keyword}\n\n{i_am_a_bot}"
+            f"Successfully subscribed to {keyword}! That keyword is part of a cluster with the following keywords: \n\n>{', '.join(cluster)}\n\n if you would like to only subscribe to the keyword you entered and not the entire cluster, please respond with \n\n!unexpand {keyword}\n\n{i_am_a_bot}"
         )
     else:
         respond(f"Successfully subscribed to {keyword}!\n\n{i_am_a_bot}")

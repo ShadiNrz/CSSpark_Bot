@@ -41,6 +41,7 @@ else:
 
 
 def comment_stream():
+    global killswitch
     for comment in subreddit.stream.comments(skip_existing=True):
         if killswitch:
             break
@@ -61,6 +62,7 @@ def handle_submission(submission):
 
 
 def submission_stream():
+    global killswitch
     for submission in subreddit.stream.submissions(skip_existing=True):
         if killswitch:
             break
@@ -169,6 +171,7 @@ def handle_command(message):
 
 # Main function for DM stream
 def dm_stream():
+    global killswitch
     for message in reddit.inbox.stream(skip_existing=True):
         if killswitch:
             break
