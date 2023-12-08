@@ -124,6 +124,8 @@ def on_reddit_post(db, submission, reddit):
         submission.reply(
             f"Beep boop, I spy a keyphrase of interest to r/CompSocial community members: {top_public_users_str}\n\nPlease join the converstation and tell us what you think!\n\n{i_am_a_bot}"
         )
+
+    # reddit won't let us notify more than 3 users in a single comment so lets DM everyone if the list is longer than 3.
     if len(top_public_users) > 3:
         top_private_users = top_private_users + top_public_users
 
