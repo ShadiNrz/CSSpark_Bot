@@ -47,7 +47,7 @@ python3 main.py
 
 So you've added a cool feature (and tested locally to make sure it actually works) and pushed it to the main branch on github.
 
-Now you will need to log into the AWS EC2 server that runs the bot. You can open the terminal for the server in the browser, and run the `update.sh` script. This script pulls any new changes from github, kills the redditbot service and starts it again.
+Now you will need to log into the AWS EC2 server that runs the bot. You can open the terminal for the server in the browser (click on the EC2 instance in AWS, and then click "connect" on the top right), and run the `update.sh` script. This script pulls any new changes from github, kills the redditbot service and starts it again.
 
 ```bash
 #change directory to the bot code
@@ -60,9 +60,18 @@ cd CSSpark_Bot
 
 ## Server setup
 
-Right now the bot is running on an EC2 instance.
+Start with a server running Ubuntu. The current server is running 22.04, other versions will probably also work. 
 
-The bot is running in a systemd service. If you are starting from scratch on a new EC2 or other Ubuntu server you will need to make your `redditbot.service` file in `/etc/systemd/system/`
+Clone the git repository in the home directory 
+
+```bash
+git clone https://github.com/shanecranor/CSSpark_Bot.git
+cd CSSpark_Bot
+```
+
+In that folder, create a `.env` file with the database connection string and bot credentials following the template in `.env.template`.
+
+Now make a systemd service. Create a file called `redditbot.service` file in `/etc/systemd/system/`
 
 ```bash
 sudo vim /etc/systemd/system/redditbot.service
@@ -85,7 +94,7 @@ Restart=no
 WantedBy=multi-user.target
 ```
 
-run
+run the following commands to get the reddit bot service running!
 
 ```bash
 #enables start on boot so the bot will come back in the event the server randomly reboots
@@ -94,3 +103,5 @@ sudo systemctl start redditbot.service
 #check that the service is running
 sudo systemctl status redditbot.service
 ```
+
+you should have sucessfully deployed the bot to a server!
