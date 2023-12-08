@@ -31,10 +31,10 @@ def rebuild_admin_settings_db(db):
     db.admin_settings.insert_one({"ping_limit": 7})
 
 
-def rebuild_sample_users_db():
+def rebuild_sample_users_db(db):
     print("REBUILDING USERS DB")
-    staging.users.delete_many({})
-    staging.users.insert_many(
+    db.users.delete_many({})
+    db.users.insert_many(
         [
             {
                 "reddit_username": "123madskillz",
