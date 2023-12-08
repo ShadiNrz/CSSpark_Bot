@@ -33,8 +33,12 @@ pip install pymongo
 
 ## Usage
 
-To run the bot, execute the following command:
+To run the bot, allowlist your IP address in the shared MongoDB (or create your own mongo instance) 
+
+Then create a .env file with the auth string for mongo, the bot credentials, and subreddit name. Use the template in .env.template as a reference 
+
+Now you can run the bot with 
 
 ```bash
-python old.py
+python3 main.py
 ```

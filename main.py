@@ -71,7 +71,7 @@ def submission_stream():
 
 def message_check(message):
     try:  # try to get subject of message if it is a DM - check if subject is Bot Command
-        if message.subject.lower() == "bot command":
+        if "bot command" in message.subject.lower():
             message.mark_read()  # Mark message as read when fetching it
             return "DM"
         else:
