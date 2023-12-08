@@ -60,7 +60,9 @@ cd CSSpark_Bot
 
 ## Server setup
 
-Start with a server running Ubuntu. The current server is running 22.04, other versions will probably also work. 
+The following instructions are for setting up a brand new server to run the bot. See above for pushing updates to an already deployed server.
+
+Start with a server running Ubuntu. The current production server is running 22.04, other versions will probably also work. 
 
 Clone the git repository in the home directory 
 
@@ -69,9 +71,25 @@ git clone https://github.com/shanecranor/CSSpark_Bot.git
 cd CSSpark_Bot
 ```
 
+At this point you will need to install the dependencies listed at the top of this page. By default Ubuntu does not have pip so you will need to install it 
+
+```bash
+sudo apt update
+sudo apt install python3-pip
+pip install -r requirements.txt
+```
+
 In that folder, create a `.env` file with the database connection string and bot credentials following the template in `.env.template`.
 
-Now make a systemd service. Create a file called `redditbot.service` file in `/etc/systemd/system/`
+It is probably a good idea at this point to make sure the bot code will run with
+
+```bash
+python3 main.py
+```
+
+Kill the bot with ctrl + c once you confirm it launches and functions with no errors. (don't forget to allowlist the server's IP in MongoDB)
+
+Now make a systemd service. Create a file called `redditbot.service` in `/etc/systemd/system/`
 
 ```bash
 sudo vim /etc/systemd/system/redditbot.service
