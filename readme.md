@@ -106,7 +106,7 @@ After=network.target
 Type=simple
 User=ubuntu
 ExecStart=/usr/bin/python3 /home/ubuntu/CSSpark_Bot/main.py 
-Restart=no
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
